@@ -5,7 +5,9 @@
     "**/.server/**/*.ts",
     "**/.server/**/*.tsx",
     "**/.client/**/*.ts",
-    "**/.client/**/*.tsx"
+    "**/.client/**/*.tsx",
+    "jest.polyfills.js",
+    "playwright.config.ts"
   ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
