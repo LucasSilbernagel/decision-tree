@@ -1,12 +1,12 @@
-import type { MetaFunction } from "@remix-run/node";
-import { Button } from "~/components/ui/button";
+import type { MetaFunction } from '@remix-run/node'
+import { Button } from '~/components/ui/button'
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
-};
+    { title: 'New Remix App' },
+    { name: 'description', content: 'Welcome to Remix!' },
+  ]
+}
 
 export default function Index() {
   return (
@@ -52,13 +52,13 @@ export default function Index() {
         </nav>
       </div>
     </div>
-  );
+  )
 }
 
 const resources = [
   {
-    href: "https://remix.run/start/quickstart",
-    text: "Quick Start (5 min)",
+    href: 'https://remix.run/start/quickstart',
+    text: 'Quick Start (5 min)',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -78,8 +78,8 @@ const resources = [
     ),
   },
   {
-    href: "https://remix.run/start/tutorial",
-    text: "Tutorial (30 min)",
+    href: 'https://remix.run/start/tutorial',
+    text: 'Tutorial (30 min)',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -99,8 +99,8 @@ const resources = [
     ),
   },
   {
-    href: "https://remix.run/docs",
-    text: "Remix Docs",
+    href: 'https://remix.run/docs',
+    text: 'Remix Docs',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -119,8 +119,8 @@ const resources = [
     ),
   },
   {
-    href: "https://rmx.as/discord",
-    text: "Join Discord",
+    href: 'https://rmx.as/discord',
+    text: 'Join Discord',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -137,4 +137,4 @@ const resources = [
       </svg>
     ),
   },
-];
+]
