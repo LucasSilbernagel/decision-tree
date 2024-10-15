@@ -53,102 +53,119 @@ export default function Index() {
       })
     }
   }
+
   const renderNode = (
     node: DecisionTreeNode,
     updateNode: (newNode: DecisionTreeNode) => void
   ) => {
     return (
-      <div className="ml-4 mt-4">
-        <div className="mt-2">
-          <strong>Decision:</strong>
-          <input
-            type="text"
-            value={node.decision || ''}
-            placeholder="Enter decision"
-            onChange={(e) =>
-              updateNode({
-                ...node,
-                decision: e.target.value,
-              })
-            }
-          />
-        </div>
-
-        <div className="mt-2">
-          <strong>Condition:</strong>
-          <input
-            type="text"
-            value={node.condition}
-            placeholder="Enter condition"
-            onChange={(e) =>
-              updateNode({
-                ...node,
-                condition: e.target.value,
-              })
-            }
-          />
-        </div>
-
-        {/* Render the yes branch or provide a way to create it */}
-        <div className="mt-2">
-          <strong>Yes: </strong>
-          {node.yes ? (
-            renderNode(node.yes, (newYesNode) => {
-              updateNode({
-                ...node,
-                yes: newYesNode,
-              })
-            })
-          ) : (
-            <button
-              onClick={() =>
+      <div className="relative flex flex-col items-center mb-12">
+        {/* Main node */}
+        <div className="flex flex-col items-center p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-sm w-[300px]">
+          <div>
+            <span className="block text-sm font-medium text-gray-700">
+              Decision:
+            </span>
+            <input
+              type="text"
+              value={node.decision || ''}
+              placeholder="Enter decision"
+              onChange={(e) =>
                 updateNode({
                   ...node,
-                  yes: {
-                    id: getHighestId(node) + 1,
-                    decision: null,
-                    condition: 'Yes or no?',
-                    yes: null,
-                    no: null,
-                  },
+                  decision: e.target.value,
                 })
               }
-              className="text-blue-600"
-            >
-              Add Yes Branch
-            </button>
-          )}
-        </div>
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
 
-        {/* Render the no branch or provide a way to create it */}
-        <div className="mt-2">
-          <strong>No: </strong>
-          {node.no ? (
-            renderNode(node.no, (newNoNode) => {
-              updateNode({
-                ...node,
-                no: newNoNode,
-              })
-            })
-          ) : (
-            <button
-              onClick={() =>
+          <div className="mt-4">
+            <span className="block text-sm font-medium text-gray-700">
+              Condition:
+            </span>
+            <input
+              type="text"
+              value={node.condition}
+              placeholder="Enter condition"
+              onChange={(e) =>
                 updateNode({
                   ...node,
-                  no: {
-                    id: getHighestId(node) + 1,
-                    decision: null,
-                    condition: 'Yes or no?',
-                    yes: null,
-                    no: null,
-                  },
+                  condition: e.target.value,
                 })
               }
-              className="text-red-600"
-            >
-              Add No Branch
-            </button>
-          )}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+        </div>
+
+        {/* Yes and No branches */}
+        <div className="relative flex justify-center w-full mt-8">
+          {/* No branch (Left) */}
+          <div className="flex flex-col items-center w-[300px] mx-8">
+            <strong className="text-red-600 mb-2">No:</strong>
+            <div className="w-[300px] flex-grow">
+              {node.no ? (
+                renderNode(node.no, (newNoNode) => {
+                  updateNode({
+                    ...node,
+                    no: newNoNode,
+                  })
+                })
+              ) : (
+                <button
+                  onClick={() =>
+                    updateNode({
+                      ...node,
+                      no: {
+                        id: getHighestId(node) + 1,
+                        decision: null,
+                        condition: 'Yes or no?',
+                        yes: null,
+                        no: null,
+                      },
+                    })
+                  }
+                  className="mt-2 text-red-500 hover:text-red-700 hover:underline"
+                >
+                  Add No Branch
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Yes branch (Right) */}
+          <div className="flex flex-col items-center w-[300px] mx-8">
+            <strong className="text-green-600 mb-2">Yes:</strong>
+            <div className="w-[300px] flex-grow">
+              {node.yes ? (
+                renderNode(node.yes, (newYesNode) => {
+                  updateNode({
+                    ...node,
+                    yes: newYesNode,
+                  })
+                })
+              ) : (
+                <button
+                  onClick={() =>
+                    updateNode({
+                      ...node,
+                      yes: {
+                        id: getHighestId(node) + 1,
+                        decision: null,
+                        condition: 'Yes or no?',
+                        yes: null,
+                        no: null,
+                      },
+                    })
+                  }
+                  className="mt-2 text-green-500 hover:text-green-700 hover:underline"
+                >
+                  Add Yes Branch
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     )
