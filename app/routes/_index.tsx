@@ -1,5 +1,5 @@
 import type { MetaFunction } from '@remix-run/node'
-import { Pencil, Save } from 'lucide-react'
+import { Pencil, Plus, Save, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui/card'
@@ -45,8 +45,18 @@ export default function Index() {
       node: {
         id: 0,
         text: { value: 'Yes or no?', isEditing: false },
-        yes: null,
-        no: null,
+        yes: {
+          id: 1,
+          text: { value: 'Yes', isEditing: false },
+          yes: null,
+          no: null,
+        },
+        no: {
+          id: 2,
+          text: { value: 'No', isEditing: false },
+          yes: null,
+          no: null,
+        },
       },
     })
   }
@@ -72,6 +82,20 @@ export default function Index() {
     }
   }
 
+  const deleteNode = (
+    nodeToDelete: DecisionTreeNode,
+    currentNode: DecisionTreeNode | null
+  ): DecisionTreeNode | null => {
+    if (!currentNode) return null
+    if (currentNode.id === nodeToDelete.id) return null
+
+    return {
+      ...currentNode,
+      yes: deleteNode(nodeToDelete, currentNode.yes),
+      no: deleteNode(nodeToDelete, currentNode.no),
+    }
+  }
+
   const renderNode = (
     node: DecisionTreeNode,
     updateNode: (newNode: DecisionTreeNode) => void
@@ -80,11 +104,12 @@ export default function Index() {
       <div className="relative flex flex-col items-center mb-12">
         {/* Main node */}
         <Card className="flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm border rounded-lg w-[300px]">
-          <div>
+          <div className="w-full">
             <Label htmlFor={`condition-${node.id}`} className="sr-only">
               Condition {node.id}
             </Label>
             <Input
+              className="w-full text-center text-xl"
               id={`condition-${node.id}`}
               value={node.text.value}
               placeholder="Yes or no?"
@@ -96,71 +121,81 @@ export default function Index() {
               }
             />
           </div>
+          {node.id >= 1 && (
+            <div className="flex justify-between p-2 w-full">
+              <div>
+                <Button
+                  size="icon"
+                  onClick={() => {
+                    if (decisionTree) {
+                      const updatedNode = deleteNode(node, decisionTree.node)
+                      if (updatedNode) {
+                        setDecisionTree({
+                          ...decisionTree,
+                          node: updatedNode,
+                        })
+                      }
+                    }
+                  }}
+                >
+                  <Trash2 />
+                </Button>
+              </div>
+              <div>
+                <Button
+                  size="icon"
+                  onClick={() =>
+                    updateNode({
+                      ...node,
+                      no: {
+                        id: getHighestId(node) + 1,
+                        text: { value: 'No', isEditing: false },
+                        yes: null,
+                        no: null,
+                      },
+                      yes: {
+                        id: getHighestId(node) + 2,
+                        text: { value: 'Yes', isEditing: false },
+                        yes: null,
+                        no: null,
+                      },
+                    })
+                  }
+                >
+                  <Plus />
+                </Button>
+              </div>
+            </div>
+          )}
         </Card>
 
         {/* Yes and No branches */}
         <div className="relative flex justify-center mt-8 w-full">
           {/* No branch (Left) */}
           <div className="flex flex-col items-center mx-8 w-[300px]">
-            <strong className="mb-2 text-red-600">No:</strong>
             <div className="flex-grow w-[300px]">
-              {node.no ? (
-                renderNode(node.no, (newNoNode) => {
-                  updateNode({
-                    ...node,
-                    no: newNoNode,
-                  })
-                })
-              ) : (
-                <button
-                  onClick={() =>
+              {node.no
+                ? renderNode(node.no, (newNoNode) => {
                     updateNode({
                       ...node,
-                      no: {
-                        id: getHighestId(node) + 1,
-                        text: { value: 'Yes or no?', isEditing: false },
-                        yes: null,
-                        no: null,
-                      },
+                      no: newNoNode,
                     })
-                  }
-                  className="mt-2 text-red-500 hover:text-red-700 hover:underline"
-                >
-                  Add No Branch
-                </button>
-              )}
+                  })
+                : null}
             </div>
           </div>
 
           {/* Yes branch (Right) */}
           <div className="flex flex-col items-center mx-8 w-[300px]">
-            <strong className="mb-2 text-green-600">Yes:</strong>
             <div className="flex-grow w-[300px]">
-              {node.yes ? (
-                renderNode(node.yes, (newYesNode) => {
-                  updateNode({
-                    ...node,
-                    yes: newYesNode,
-                  })
-                })
-              ) : (
-                <button
-                  onClick={() =>
+              {node.yes
+                ? renderNode(node.yes, (newYesNode) => {
                     updateNode({
                       ...node,
-                      yes: {
-                        id: getHighestId(node) + 1,
-                        text: { value: 'Yes or no?', isEditing: false },
-                        yes: null,
-                        no: null,
-                      },
+                      yes: newYesNode,
                     })
-                  }
-                  className="mt-2 text-green-500 hover:text-green-700 hover:underline"
-                >
-                  Add Yes Branch
-                </button>
-              )}
+                  })
+                : null}
             </div>
           </div>
         </div>
@@ -183,7 +218,7 @@ export default function Index() {
         <div>
           {decisionTree ? (
             <>
-              <div className="flex items-center gap-4 mx-auto mb-6 max-w-max">
+              <div className="flex justify-center items-center gap-6 mb-6">
                 <div>
                   {decisionTree.title.isEditing ? (
                     <>
@@ -197,18 +232,17 @@ export default function Index() {
                         onChange={(e) =>
                           setDecisionTreeTitleDraft(e.target.value)
                         }
+                        className="text-4xl text-center"
                       />
                     </>
                   ) : (
-                    <h2 className="text-2xl">{decisionTree.title.value}</h2>
+                    <h2 className="text-4xl text-center">
+                      {decisionTree.title.value}
+                    </h2>
                   )}
                 </div>
                 <div>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={handleTitleEdit}
-                  >
+                  <Button variant="ghost" size="icon" onClick={handleTitleEdit}>
                     {decisionTree.title.isEditing ? <Save /> : <Pencil />}
                   </Button>
                 </div>
@@ -218,7 +252,7 @@ export default function Index() {
             </>
           ) : (
             <Button onClick={startNewDecisionTree}>
-              Create new decision tree
+              Create a new decision tree
             </Button>
           )}
         </div>
