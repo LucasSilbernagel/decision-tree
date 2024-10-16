@@ -125,6 +125,7 @@ export default function Index() {
             <div className="flex justify-between p-2 w-full">
               <div>
                 <Button
+                  className={node.id < 3 ? 'hidden' : ''}
                   size="icon"
                   onClick={() => {
                     if (decisionTree) {
