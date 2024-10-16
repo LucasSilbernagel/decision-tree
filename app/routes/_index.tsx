@@ -30,14 +30,7 @@ export default function Index() {
     decisionTree?.title.value || ''
   )
 
-  const getHighestId = (node: DecisionTreeNode | null): number => {
-    if (node === null) {
-      return -1 // Return a default value for null branches
-    }
-    const yesId = node.yes ? getHighestId(node.yes) : -1
-    const noId = node.no ? getHighestId(node.no) : -1
-    return Math.max(node.id, yesId, noId)
-  }
+  const [highestId, setHighestId] = useState(0)
 
   const startNewDecisionTree = () => {
     setDecisionTree({
@@ -101,7 +94,7 @@ export default function Index() {
     updateNode: (newNode: DecisionTreeNode) => void
   ) => {
     return (
-      <div className="relative flex flex-col items-center mb-12">
+      <div className="flex flex-col items-center mb-12">
         {/* Main node */}
         <Card className="flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm border rounded-lg w-[300px]">
           <div className="w-full">
@@ -144,18 +137,19 @@ export default function Index() {
               </div>
               <div>
                 <Button
+                  disabled={node.yes !== null && node.no !== null}
                   size="icon"
                   onClick={() =>
                     updateNode({
                       ...node,
                       no: {
-                        id: getHighestId(node) + 1,
+                        id: highestId + 1,
                         text: { value: 'No', isEditing: false },
                         yes: null,
                         no: null,
                       },
                       yes: {
-                        id: getHighestId(node) + 2,
+                        id: highestId + 2,
                         text: { value: 'Yes', isEditing: false },
                         yes: null,
                         no: null,
@@ -171,7 +165,7 @@ export default function Index() {
         </Card>
 
         {/* Yes and No branches */}
-        <div className="relative flex justify-center mt-8 w-full">
+        <div className="flex justify-center mt-8 w-full">
           {/* No branch (Left) */}
           <div className="flex flex-col items-center mx-8 w-[300px]">
             <div className="flex-grow w-[300px]">
@@ -205,7 +199,17 @@ export default function Index() {
   }
 
   useEffect(() => {
+    const getHighestId = (node: DecisionTreeNode | null): number => {
+      if (node === null) {
+        return -1 // Return a default value for null branches
+      }
+      const yesId = node.yes ? getHighestId(node.yes) : -1
+      const noId = node.no ? getHighestId(node.no) : -1
+      return Math.max(node.id, yesId, noId)
+    }
+
     if (decisionTree) {
+      setHighestId(getHighestId(decisionTree.node))
       setDecisionTreeTitleDraft(decisionTree.title.value)
     }
   }, [decisionTree])
