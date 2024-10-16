@@ -1,25 +1,27 @@
 import type { MetaFunction } from '@remix-run/node'
 import { useState } from 'react'
 import { Button } from '~/components/ui/button'
+import { Card } from '~/components/ui/card'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
 
 export const meta: MetaFunction = () => {
   return [
     { title: 'Decision Tree' },
-    { name: 'description', content: 'Welcome to Remix!' },
+    { name: 'description', content: 'A simple decision tree generator.' },
   ]
 }
 
 export type DecisionTreeNode = {
   id: number
-  decision: string | null
-  condition: string
+  text: { value: string; isEditing: boolean }
   yes: DecisionTreeNode | null
   no: DecisionTreeNode | null
 }
 
 export default function Index() {
   const [decisionTree, setDecisionTree] = useState<{
-    title: string
+    title: { value: string; isEditing: boolean }
     node: DecisionTreeNode
   } | null>(null)
 
@@ -34,11 +36,10 @@ export default function Index() {
 
   const startNewDecisionTree = () => {
     setDecisionTree({
-      title: 'Decision Tree Title',
+      title: { value: 'Decision Tree', isEditing: false },
       node: {
         id: 0,
-        decision: null,
-        condition: 'Yes or no?',
+        text: { value: 'Yes or no?', isEditing: false },
         yes: null,
         no: null,
       },
@@ -61,43 +62,24 @@ export default function Index() {
     return (
       <div className="relative flex flex-col items-center mb-12">
         {/* Main node */}
-        <div className="flex flex-col items-center p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-sm w-[300px]">
+        <Card className="flex flex-col items-center border border-gray-300 rounded-lg bg-gray-50 shadow-sm w-[300px]">
           <div>
-            <span className="block text-sm font-medium text-gray-700">
-              Decision:
-            </span>
-            <input
-              type="text"
-              value={node.decision || ''}
-              placeholder="Enter decision"
+            <Label htmlFor={`condition-${node.id}`} className="sr-only">
+              Condition {node.id}
+            </Label>
+            <Input
+              id={`condition-${node.id}`}
+              value={node.text.value}
+              placeholder="Yes or no?"
               onChange={(e) =>
                 updateNode({
                   ...node,
-                  decision: e.target.value,
+                  text: { value: e.target.value, isEditing: false },
                 })
               }
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
-
-          <div className="mt-4">
-            <span className="block text-sm font-medium text-gray-700">
-              Condition:
-            </span>
-            <input
-              type="text"
-              value={node.condition}
-              placeholder="Enter condition"
-              onChange={(e) =>
-                updateNode({
-                  ...node,
-                  condition: e.target.value,
-                })
-              }
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-        </div>
+        </Card>
 
         {/* Yes and No branches */}
         <div className="relative flex justify-center w-full mt-8">
@@ -119,8 +101,7 @@ export default function Index() {
                       ...node,
                       no: {
                         id: getHighestId(node) + 1,
-                        decision: null,
-                        condition: 'Yes or no?',
+                        text: { value: 'Yes or no?', isEditing: false },
                         yes: null,
                         no: null,
                       },
@@ -152,8 +133,7 @@ export default function Index() {
                       ...node,
                       yes: {
                         id: getHighestId(node) + 1,
-                        decision: null,
-                        condition: 'Yes or no?',
+                        text: { value: 'Yes or no?', isEditing: false },
                         yes: null,
                         no: null,
                       },
@@ -180,7 +160,7 @@ export default function Index() {
         <div>
           {decisionTree ? (
             <>
-              <h2>{decisionTree.title}</h2>
+              <h2 className="mb-6">{decisionTree.title.value}</h2>
               {renderNode(decisionTree.node, updateTree)}
             </>
           ) : (
