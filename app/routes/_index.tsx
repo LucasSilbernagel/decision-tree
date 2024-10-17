@@ -89,14 +89,45 @@ export default function Index() {
     }
   }
 
+  const calculateTreeDimensions = (
+    node: DecisionTreeNode
+  ): { width: number; height: number } => {
+    if (!node) return { width: 0, height: 0 }
+
+    const leftDimensions = node.no
+      ? calculateTreeDimensions(node.no)
+      : { width: 0, height: 0 }
+    const rightDimensions = node.yes
+      ? calculateTreeDimensions(node.yes)
+      : { width: 0, height: 0 }
+
+    const width = Math.max(300, leftDimensions.width + rightDimensions.width)
+    const height = Math.max(leftDimensions.height, rightDimensions.height) + 100 // 100 is an approximation of node height + vertical spacing
+
+    return { width, height }
+  }
+
   const renderNode = (
     node: DecisionTreeNode,
-    updateNode: (newNode: DecisionTreeNode) => void
+    updateNode: (newNode: DecisionTreeNode) => void,
+    depth: number = 0,
+    xOffset: number = 0
   ) => {
+    const { width } = calculateTreeDimensions(node)
+    const verticalSpacing = 100
+    const leftWidth = node.no ? calculateTreeDimensions(node.no).width : 0
+    const rightWidth = node.yes ? calculateTreeDimensions(node.yes).width : 0
+
+    const leftXOffset = xOffset - width / 2 + leftWidth / 2
+    const rightXOffset = xOffset + width / 2 - rightWidth / 2
+
     return (
-      <div className="flex flex-col items-center mb-12">
+      <div className="relative" style={{ width: `${width}px` }}>
         {/* Main node */}
-        <Card className="flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm border rounded-lg w-[300px]">
+        <Card
+          className="left-1/2 absolute flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm border rounded-lg w-[300px] transform -translate-x-1/2"
+          style={{ top: `${depth * verticalSpacing}px` }}
+        >
           <div className="w-full">
             <Label htmlFor={`condition-${node.id}`} className="sr-only">
               Condition {node.id}
@@ -165,34 +196,49 @@ export default function Index() {
         </Card>
 
         {/* Yes and No branches */}
-        <div className="flex justify-center mt-8 w-full">
+        <div
+          className="right-0 left-0 absolute"
+          style={{ top: `${(depth + 1) * verticalSpacing}px` }}
+        >
           {/* No branch (Left) */}
-          <div className="flex flex-col items-center mx-8 w-[300px]">
-            <div className="flex-grow w-[300px]">
-              {node.no
-                ? renderNode(node.no, (newNoNode) => {
-                    updateNode({
-                      ...node,
-                      no: newNoNode,
-                    })
+          {node.no && (
+            <div
+              className="left-0 absolute"
+              style={{ width: `${leftWidth}px` }}
+            >
+              {renderNode(
+                node.no,
+                (newNoNode) => {
+                  updateNode({
+                    ...node,
+                    no: newNoNode,
                   })
-                : null}
+                },
+                depth + 1,
+                leftXOffset
+              )}
             </div>
-          </div>
+          )}
 
           {/* Yes branch (Right) */}
-          <div className="flex flex-col items-center mx-8 w-[300px]">
-            <div className="flex-grow w-[300px]">
-              {node.yes
-                ? renderNode(node.yes, (newYesNode) => {
-                    updateNode({
-                      ...node,
-                      yes: newYesNode,
-                    })
+          {node.yes && (
+            <div
+              className="right-0 absolute"
+              style={{ width: `${rightWidth}px` }}
+            >
+              {renderNode(
+                node.yes,
+                (newYesNode) => {
+                  updateNode({
+                    ...node,
+                    yes: newYesNode,
                   })
-                : null}
+                },
+                depth + 1,
+                rightXOffset
+              )}
             </div>
-          </div>
+          )}
         </div>
       </div>
     )
