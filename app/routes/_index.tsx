@@ -1,6 +1,6 @@
 import type { MetaFunction } from '@remix-run/node'
 import { Pencil, Plus, Save, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
@@ -25,6 +25,9 @@ export default function Index() {
     title: { value: string; isEditing: boolean }
     node: DecisionTreeNode
   } | null>(null)
+
+  const [treeWidth, setTreeWidth] = useState(0)
+  const treeContainerRef = useRef<HTMLDivElement>(null)
 
   const [decisionTreeTitleDraft, setDecisionTreeTitleDraft] = useState(
     decisionTree?.title.value || ''
@@ -102,7 +105,7 @@ export default function Index() {
       : { width: 0, height: 0 }
 
     const width = Math.max(300, leftDimensions.width + rightDimensions.width)
-    const height = Math.max(leftDimensions.height, rightDimensions.height) + 100 // 100 is an approximation of node height + vertical spacing
+    const height = Math.max(leftDimensions.height, rightDimensions.height) + 100
 
     return { width, height }
   }
@@ -117,7 +120,6 @@ export default function Index() {
     const verticalSpacing = 100
     const leftWidth = node.no ? calculateTreeDimensions(node.no).width : 0
     const rightWidth = node.yes ? calculateTreeDimensions(node.yes).width : 0
-
     const leftXOffset = xOffset - width / 2 + leftWidth / 2
     const rightXOffset = xOffset + width / 2 - rightWidth / 2
 
@@ -257,15 +259,31 @@ export default function Index() {
     if (decisionTree) {
       setHighestId(getHighestId(decisionTree.node))
       setDecisionTreeTitleDraft(decisionTree.title.value)
+      const { width } = calculateTreeDimensions(decisionTree.node)
+      setTreeWidth(width)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [decisionTree])
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (treeContainerRef.current) {
+        const containerWidth = treeContainerRef.current.offsetWidth
+        const leftMargin = Math.max(0, (containerWidth - treeWidth) / 2)
+        treeContainerRef.current.style.marginLeft = `${leftMargin}px`
+      }
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [treeWidth])
 
   return (
     <div className="mx-auto pt-12 text-center">
       <header>
         <h1 className="sr-only">Decision Tree</h1>
       </header>
-      <main>
+      <main className="w-full overflow-hidden">
         <div>
           {decisionTree ? (
             <>
@@ -299,7 +317,17 @@ export default function Index() {
                 </div>
               </div>
 
-              {renderNode(decisionTree.node, updateTree)}
+              <div
+                className="relative w-full overflow-x-auto"
+                style={{ minHeight: '500px' }}
+              >
+                <div
+                  ref={treeContainerRef}
+                  className="inline-block min-w-full transition-all duration-300 ease-in-out"
+                >
+                  {renderNode(decisionTree.node, updateTree)}
+                </div>
+              </div>
             </>
           ) : (
             <Button onClick={startNewDecisionTree}>
