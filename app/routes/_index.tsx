@@ -104,8 +104,12 @@ export default function Index() {
       ? calculateTreeDimensions(node.yes)
       : { width: 0, height: 0 }
 
-    const width = Math.max(300, leftDimensions.width + rightDimensions.width)
+    let width = Math.max(300, leftDimensions.width + rightDimensions.width)
     const height = Math.max(leftDimensions.height, rightDimensions.height) + 100
+
+    if (!node.yes && !node.no) {
+      width += 20
+    }
 
     return { width, height }
   }
@@ -205,7 +209,7 @@ export default function Index() {
           {/* No branch (Left) */}
           {node.no && (
             <div
-              className="-left-3 absolute"
+              className="-left-2 absolute"
               style={{ width: `${leftWidth}px` }}
             >
               {renderNode(
@@ -225,7 +229,7 @@ export default function Index() {
           {/* Yes branch (Right) */}
           {node.yes && (
             <div
-              className="-right-3 absolute"
+              className="right-0 absolute"
               style={{ width: `${rightWidth}px` }}
             >
               {renderNode(
