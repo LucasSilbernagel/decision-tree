@@ -327,7 +327,7 @@ export default function Index() {
               >
                 <div
                   ref={treeContainerRef}
-                  className="inline-block min-w-full transition-all duration-300 ease-in-out"
+                  className="inline-block px-4 md:px-12 min-w-full transition-all duration-300 ease-in-out"
                 >
                   {renderNode(decisionTree.node, updateTree)}
                 </div>
