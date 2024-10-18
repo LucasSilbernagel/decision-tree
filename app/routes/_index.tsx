@@ -35,7 +35,7 @@ export default function Index() {
 
   const [highestId, setHighestId] = useState(0)
 
-  const startNewDecisionTree = () => {
+  const createNewDecisionTree = () => {
     setDecisionTree({
       title: { value: 'Decision Tree Title', isEditing: false },
       node: {
@@ -121,7 +121,7 @@ export default function Index() {
     xOffset: number = 0
   ) => {
     const { width } = calculateTreeDimensions(node)
-    const verticalSpacing = 100
+    const verticalSpacing = 75
     const leftWidth = node.no ? calculateTreeDimensions(node.no).width : 0
     const rightWidth = node.yes ? calculateTreeDimensions(node.yes).width : 0
     const leftXOffset = xOffset - width / 2 + leftWidth / 2
@@ -334,7 +334,7 @@ export default function Index() {
               </div>
             </>
           ) : (
-            <Button onClick={startNewDecisionTree}>
+            <Button onClick={createNewDecisionTree}>
               Create a new decision tree
             </Button>
           )}
