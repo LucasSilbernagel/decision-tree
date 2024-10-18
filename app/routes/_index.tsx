@@ -205,7 +205,7 @@ export default function Index() {
           {/* No branch (Left) */}
           {node.no && (
             <div
-              className="left-0 absolute"
+              className="-left-3 absolute"
               style={{ width: `${leftWidth}px` }}
             >
               {renderNode(
@@ -225,7 +225,7 @@ export default function Index() {
           {/* Yes branch (Right) */}
           {node.yes && (
             <div
-              className="right-0 absolute"
+              className="-right-3 absolute"
               style={{ width: `${rightWidth}px` }}
             >
               {renderNode(
