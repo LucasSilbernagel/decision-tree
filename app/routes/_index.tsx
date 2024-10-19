@@ -1,8 +1,8 @@
 import type { MetaFunction } from '@remix-run/node'
-import { Pencil, Plus, Save, Trash2 } from 'lucide-react'
+import { Pencil, Save } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import TreeNode, { NodePosition } from '~/components/TreeNode/TreeNode'
 import { Button } from '~/components/ui/button'
-import { Card } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 
@@ -18,6 +18,7 @@ export type DecisionTreeNode = {
   text: { value: string; isEditing: boolean }
   yes: DecisionTreeNode | null
   no: DecisionTreeNode | null
+  parentId?: number
 }
 
 export default function Index() {
@@ -27,13 +28,17 @@ export default function Index() {
   } | null>(null)
 
   const [treeWidth, setTreeWidth] = useState(0)
-  const treeContainerRef = useRef<HTMLDivElement>(null)
 
   const [decisionTreeTitleDraft, setDecisionTreeTitleDraft] = useState(
     decisionTree?.title.value || ''
   )
 
+  const [nodePositions, setNodePositions] = useState<Map<number, NodePosition>>(
+    new Map()
+  )
   const [highestId, setHighestId] = useState(0)
+
+  const treeContainerRef = useRef<HTMLDivElement>(null)
 
   const createNewDecisionTree = () => {
     setDecisionTree({
@@ -55,6 +60,7 @@ export default function Index() {
         },
       },
     })
+    setHighestId(0)
   }
 
   const updateTree = (newNode: DecisionTreeNode) => {
@@ -78,195 +84,145 @@ export default function Index() {
     }
   }
 
-  const deleteNode = (
-    nodeToDelete: DecisionTreeNode,
-    currentNode: DecisionTreeNode | null
-  ): DecisionTreeNode | null => {
-    if (!currentNode) return null
-    if (currentNode.id === nodeToDelete.id) return null
-
-    return {
-      ...currentNode,
-      yes: deleteNode(nodeToDelete, currentNode.yes),
-      no: deleteNode(nodeToDelete, currentNode.no),
+  const deleteNode = (nodeId: number) => {
+    if (decisionTree) {
+      const deleteNodeRecursive = (
+        node: DecisionTreeNode | null
+      ): DecisionTreeNode | null => {
+        if (!node) return null
+        if (node.id === nodeId) return null
+        return {
+          ...node,
+          yes: deleteNodeRecursive(node.yes),
+          no: deleteNodeRecursive(node.no),
+        }
+      }
+      const updatedTree = deleteNodeRecursive(decisionTree.node)
+      if (updatedTree) {
+        setDecisionTree({
+          ...decisionTree,
+          node: updatedTree,
+        })
+      }
     }
   }
 
-  const calculateTreeDimensions = (
-    node: DecisionTreeNode
-  ): { width: number; height: number } => {
-    if (!node) return { width: 0, height: 0 }
-
-    const leftDimensions = node.no
-      ? calculateTreeDimensions(node.no)
-      : { width: 0, height: 0 }
-    const rightDimensions = node.yes
-      ? calculateTreeDimensions(node.yes)
-      : { width: 0, height: 0 }
-
-    let width = Math.max(300, leftDimensions.width + rightDimensions.width)
-    const height = Math.max(leftDimensions.height, rightDimensions.height) + 100
-
-    if (!node.yes && !node.no) {
-      width += 20
-    }
-
-    return { width, height }
+  const updateNodePosition = (id: number, position: NodePosition) => {
+    setNodePositions((prev) => new Map(prev).set(id, position))
   }
 
-  const renderNode = (
-    node: DecisionTreeNode,
-    updateNode: (newNode: DecisionTreeNode) => void,
-    depth: number = 0,
-    xOffset: number = 0
-  ) => {
-    const { width } = calculateTreeDimensions(node)
-    const verticalSpacing = 75
-    const leftWidth = node.no ? calculateTreeDimensions(node.no).width : 0
-    const rightWidth = node.yes ? calculateTreeDimensions(node.yes).width : 0
-    const leftXOffset = xOffset - width / 2 + leftWidth / 2
-    const rightXOffset = xOffset + width / 2 - rightWidth / 2
+  const getNewId = () => {
+    setHighestId((prev) => prev + 1)
+    return highestId + 1
+  }
 
-    return (
-      <div className="relative" style={{ width: `${width}px` }}>
-        {/* Main node */}
-        <Card
-          className="left-1/2 absolute flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm border rounded-lg w-[300px] transform -translate-x-1/2"
-          style={{ top: `${depth * verticalSpacing}px` }}
-        >
-          <div className="w-full">
-            <Label htmlFor={`condition-${node.id}`} className="sr-only">
-              Condition {node.id}
-            </Label>
-            <Input
-              className="w-full text-center text-xl"
-              id={`condition-${node.id}`}
-              value={node.text.value}
-              placeholder="Yes or no?"
-              onChange={(e) =>
-                updateNode({
-                  ...node,
-                  text: { value: e.target.value, isEditing: false },
-                })
-              }
+  const renderLines = () => {
+    const lines: JSX.Element[] = []
+    const renderLinesRecursive = (node: DecisionTreeNode | null) => {
+      if (!node) return
+      const parentPos = nodePositions.get(node.id)
+      if (node.yes) {
+        const childPos = nodePositions.get(node.yes.id)
+        if (parentPos && childPos) {
+          lines.push(
+            <line
+              key={`${node.id}-${node.yes.id}`}
+              x1={parentPos.x}
+              y1={parentPos.y}
+              x2={childPos.x}
+              y2={childPos.y - 40}
+              stroke="black"
             />
-          </div>
-          {node.id >= 1 && (
-            <div className="flex justify-between p-2 w-full">
-              <div>
-                <Button
-                  className={node.id < 3 ? 'hidden' : ''}
-                  size="icon"
-                  onClick={() => {
-                    if (decisionTree) {
-                      const updatedNode = deleteNode(node, decisionTree.node)
-                      if (updatedNode) {
-                        setDecisionTree({
-                          ...decisionTree,
-                          node: updatedNode,
-                        })
-                      }
-                    }
-                  }}
-                >
-                  <Trash2 />
-                </Button>
-              </div>
-              <div>
-                <Button
-                  disabled={node.yes !== null && node.no !== null}
-                  size="icon"
-                  onClick={() =>
-                    updateNode({
-                      ...node,
-                      no: {
-                        id: highestId + 1,
-                        text: { value: 'No', isEditing: false },
-                        yes: null,
-                        no: null,
-                      },
-                      yes: {
-                        id: highestId + 2,
-                        text: { value: 'Yes', isEditing: false },
-                        yes: null,
-                        no: null,
-                      },
-                    })
-                  }
-                >
-                  <Plus />
-                </Button>
-              </div>
-            </div>
-          )}
-        </Card>
-
-        {/* Yes and No branches */}
-        <div
-          className="right-0 left-0 absolute"
-          style={{ top: `${(depth + 1) * verticalSpacing}px` }}
-        >
-          {/* No branch (Left) */}
-          {node.no && (
-            <div
-              className="-left-2 absolute"
-              style={{ width: `${leftWidth}px` }}
-            >
-              {renderNode(
-                node.no,
-                (newNoNode) => {
-                  updateNode({
-                    ...node,
-                    no: newNoNode,
-                  })
-                },
-                depth + 1,
-                leftXOffset
-              )}
-            </div>
-          )}
-
-          {/* Yes branch (Right) */}
-          {node.yes && (
-            <div
-              className="right-0 absolute"
-              style={{ width: `${rightWidth}px` }}
-            >
-              {renderNode(
-                node.yes,
-                (newYesNode) => {
-                  updateNode({
-                    ...node,
-                    yes: newYesNode,
-                  })
-                },
-                depth + 1,
-                rightXOffset
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    )
+          )
+        }
+        renderLinesRecursive(node.yes)
+      }
+      if (node.no) {
+        const childPos = nodePositions.get(node.no.id)
+        if (parentPos && childPos) {
+          lines.push(
+            <line
+              key={`${node.id}-${node.no.id}`}
+              x1={parentPos.x}
+              y1={parentPos.y}
+              x2={childPos.x}
+              y2={childPos.y - 40}
+              stroke="black"
+            />
+          )
+        }
+        renderLinesRecursive(node.no)
+      }
+    }
+    if (decisionTree) {
+      renderLinesRecursive(decisionTree.node)
+    }
+    return lines
   }
 
   useEffect(() => {
-    const getHighestId = (node: DecisionTreeNode | null): number => {
+    const getHighestId = (
+      node: DecisionTreeNode | null,
+      depth = 0,
+      xOffset = 0,
+      positions: { id: number; x: number; y: number; parentId?: number }[] = [],
+      parentId?: number
+    ): {
+      highestId: number
+      positions: { id: number; x: number; y: number; parentId?: number }[]
+    } => {
       if (node === null) {
-        return -1 // Return a default value for null branches
+        return { highestId: -1, positions }
       }
-      const yesId = node.yes ? getHighestId(node.yes) : -1
-      const noId = node.no ? getHighestId(node.no) : -1
-      return Math.max(node.id, yesId, noId)
+      const yesResult = node.yes
+        ? getHighestId(node.yes, depth + 1, xOffset - 50, positions, node.id)
+        : { highestId: -1, positions }
+      const noResult = node.no
+        ? getHighestId(node.no, depth + 1, xOffset + 50, positions, node.id)
+        : { highestId: -1, positions }
+      positions.push({
+        id: node.id,
+        x: xOffset,
+        y: depth * 100,
+        parentId,
+      })
+      return {
+        highestId: Math.max(node.id, yesResult.highestId, noResult.highestId),
+        positions,
+      }
     }
 
     if (decisionTree) {
-      setHighestId(getHighestId(decisionTree.node))
+      const { highestId } = getHighestId(decisionTree.node)
+
+      const calculateTreeDimensions = (
+        node: DecisionTreeNode
+      ): { width: number; height: number } => {
+        if (!node) return { width: 0, height: 0 }
+
+        const leftDimensions = node.no
+          ? calculateTreeDimensions(node.no)
+          : { width: 0, height: 0 }
+        const rightDimensions = node.yes
+          ? calculateTreeDimensions(node.yes)
+          : { width: 0, height: 0 }
+
+        let width = Math.max(300, leftDimensions.width + rightDimensions.width)
+        const height =
+          Math.max(leftDimensions.height, rightDimensions.height) + 100
+
+        if (!node.yes && !node.no) {
+          width += 20
+        }
+
+        return { width, height }
+      }
+
+      setHighestId(highestId)
       setDecisionTreeTitleDraft(decisionTree.title.value)
       const { width } = calculateTreeDimensions(decisionTree.node)
       setTreeWidth(width)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [decisionTree])
 
   useEffect(() => {
@@ -325,11 +281,27 @@ export default function Index() {
                 className="relative w-full overflow-x-auto"
                 style={{ minHeight: '500px' }}
               >
+                <svg
+                  width="100%"
+                  height="100%"
+                  className="top-0 left-0 absolute pointer-events-none"
+                  style={{ minHeight: '500px' }}
+                >
+                  {renderLines()}
+                </svg>
                 <div
                   ref={treeContainerRef}
                   className="inline-block px-4 md:px-12 min-w-full transition-all duration-300 ease-in-out"
                 >
-                  {renderNode(decisionTree.node, updateTree)}
+                  <TreeNode
+                    node={decisionTree.node}
+                    updateNode={updateTree}
+                    deleteNode={deleteNode}
+                    depth={0}
+                    xOffset={0}
+                    onPositionUpdate={updateNodePosition}
+                    getNewId={getNewId}
+                  />
                 </div>
               </div>
             </>
