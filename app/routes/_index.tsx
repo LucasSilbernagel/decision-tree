@@ -126,7 +126,7 @@ export default function Index() {
         if (parentPos && childPos) {
           lines.push(
             <line
-              key={`${node.id}-${node.yes.id}`}
+              key={`${node.id}-${node.yes.id}-yes`}
               x1={parentPos.x}
               y1={parentPos.y}
               x2={childPos.x}
@@ -142,7 +142,7 @@ export default function Index() {
         if (parentPos && childPos) {
           lines.push(
             <line
-              key={`${node.id}-${node.no.id}`}
+              key={`${node.id}-${node.no.id}-no`}
               x1={parentPos.x}
               y1={parentPos.y}
               x2={childPos.x}
@@ -195,6 +195,9 @@ export default function Index() {
     if (decisionTree) {
       const { highestId } = getHighestId(decisionTree.node)
 
+      const minNodeWidth = 300
+      const verticalSpacing = 100
+
       const calculateTreeDimensions = (
         node: DecisionTreeNode
       ): { width: number; height: number } => {
@@ -207,13 +210,15 @@ export default function Index() {
           ? calculateTreeDimensions(node.yes)
           : { width: 0, height: 0 }
 
-        let width = Math.max(300, leftDimensions.width + rightDimensions.width)
+        const width = Math.max(
+          minNodeWidth,
+          leftDimensions.width +
+            rightDimensions.width +
+            (node.yes && node.no ? 50 : 0)
+        )
         const height =
-          Math.max(leftDimensions.height, rightDimensions.height) + 100
-
-        if (!node.yes && !node.no) {
-          width += 20
-        }
+          Math.max(leftDimensions.height, rightDimensions.height) +
+          verticalSpacing
 
         return { width, height }
       }

@@ -28,6 +28,7 @@ const TreeNode = ({
   containerRef: React.RefObject<HTMLDivElement>
 }) => {
   const nodeRef = useRef<HTMLDivElement>(null)
+  const prevPositionRef = useRef<NodePosition | null>(null)
   const verticalSpacing = 100
   const minNodeWidth = 300
 
@@ -58,23 +59,45 @@ const TreeNode = ({
   const { width } = calculateTreeDimensions(node)
 
   useEffect(() => {
-    if (nodeRef.current && containerRef.current) {
-      const nodeRect = nodeRef.current.getBoundingClientRect()
-      const containerRect = containerRef.current.getBoundingClientRect()
-      onPositionUpdate(node.id, {
-        x:
-          nodeRect.left -
-          containerRect.left +
-          nodeRect.width / 2 +
-          containerRef.current.scrollLeft,
-        y:
-          nodeRect.top -
-          containerRect.top +
-          nodeRect.height / 2 +
-          containerRef.current.scrollTop,
-      })
+    const updatePosition = () => {
+      if (nodeRef.current && containerRef.current) {
+        const nodeRect = nodeRef.current.getBoundingClientRect()
+        const containerRect = containerRef.current.getBoundingClientRect()
+        const newPosition = {
+          x:
+            nodeRect.left -
+            containerRect.left +
+            nodeRect.width / 2 +
+            containerRef.current.scrollLeft,
+          y:
+            nodeRect.top -
+            containerRect.top +
+            nodeRect.height / 2 +
+            containerRef.current.scrollTop,
+        }
+
+        // Only update if the position has changed
+        if (
+          JSON.stringify(newPosition) !==
+          JSON.stringify(prevPositionRef.current)
+        ) {
+          prevPositionRef.current = newPosition
+          onPositionUpdate(node.id, newPosition)
+        }
+      }
     }
-  }, [node.id, xOffset, depth, onPositionUpdate, width, containerRef])
+
+    updatePosition()
+
+    const resizeObserver = new ResizeObserver(updatePosition)
+    if (nodeRef.current) {
+      resizeObserver.observe(nodeRef.current)
+    }
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [node.id, onPositionUpdate, containerRef])
 
   const handleAddChildren = () => {
     updateNode({
