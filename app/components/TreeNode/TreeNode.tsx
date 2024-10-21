@@ -16,6 +16,7 @@ const TreeNode = ({
   xOffset,
   onPositionUpdate,
   getNewId,
+  containerRef,
 }: {
   node: DecisionTreeNode
   updateNode: (newNode: DecisionTreeNode) => void
@@ -24,6 +25,7 @@ const TreeNode = ({
   xOffset: number
   onPositionUpdate: (id: number, position: NodePosition) => void
   getNewId: () => number
+  containerRef: React.RefObject<HTMLDivElement>
 }) => {
   const nodeRef = useRef<HTMLDivElement>(null)
   const verticalSpacing = 100
@@ -56,14 +58,23 @@ const TreeNode = ({
   const { width } = calculateTreeDimensions(node)
 
   useEffect(() => {
-    if (nodeRef.current) {
-      const rect = nodeRef.current.getBoundingClientRect()
+    if (nodeRef.current && containerRef.current) {
+      const nodeRect = nodeRef.current.getBoundingClientRect()
+      const containerRect = containerRef.current.getBoundingClientRect()
       onPositionUpdate(node.id, {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
+        x:
+          nodeRect.left -
+          containerRect.left +
+          nodeRect.width / 2 +
+          containerRef.current.scrollLeft,
+        y:
+          nodeRect.top -
+          containerRect.top +
+          nodeRect.height / 2 +
+          containerRef.current.scrollTop,
       })
     }
-  }, [node.id, xOffset, depth, onPositionUpdate, width])
+  }, [node.id, xOffset, depth, onPositionUpdate, width, containerRef])
 
   const handleAddChildren = () => {
     updateNode({
@@ -148,6 +159,7 @@ const TreeNode = ({
             xOffset={xOffset - width / 4}
             onPositionUpdate={onPositionUpdate}
             getNewId={getNewId}
+            containerRef={containerRef}
           />
         </div>
       )}
@@ -167,6 +179,7 @@ const TreeNode = ({
             xOffset={xOffset + width / 4}
             onPositionUpdate={onPositionUpdate}
             getNewId={getNewId}
+            containerRef={containerRef}
           />
         </div>
       )}

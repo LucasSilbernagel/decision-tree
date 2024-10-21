@@ -278,21 +278,18 @@ export default function Index() {
               </div>
 
               <div
-                className="relative w-full overflow-x-auto"
-                style={{ minHeight: '500px' }}
+                className="relative w-full overflow-auto"
+                style={{ height: '500px' }}
+                ref={treeContainerRef}
               >
                 <svg
                   width="100%"
                   height="100%"
                   className="top-0 left-0 absolute pointer-events-none"
-                  style={{ minHeight: '500px' }}
                 >
                   {renderLines()}
                 </svg>
-                <div
-                  ref={treeContainerRef}
-                  className="inline-block px-4 md:px-12 min-w-full transition-all duration-300 ease-in-out"
-                >
+                <div className="inline-block px-4 md:px-12 min-w-full transition-all duration-300 ease-in-out">
                   <TreeNode
                     node={decisionTree.node}
                     updateNode={updateTree}
@@ -301,6 +298,7 @@ export default function Index() {
                     xOffset={0}
                     onPositionUpdate={updateNodePosition}
                     getNewId={getNewId}
+                    containerRef={treeContainerRef}
                   />
                 </div>
               </div>
