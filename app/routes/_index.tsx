@@ -21,6 +21,34 @@ export type DecisionTreeNode = {
   parentId?: number
 }
 
+const minNodeWidth = 300
+const verticalSpacing = 100
+
+// Add this function at the top level, before your Index component
+export const calculateTreeDimensions = (
+  node: DecisionTreeNode
+): { width: number; height: number } => {
+  if (!node) return { width: 0, height: 0 }
+
+  const leftDimensions = node.no
+    ? calculateTreeDimensions(node.no)
+    : { width: 0, height: 0 }
+  const rightDimensions = node.yes
+    ? calculateTreeDimensions(node.yes)
+    : { width: 0, height: 0 }
+
+  const width = Math.max(
+    minNodeWidth,
+    leftDimensions.width +
+      rightDimensions.width +
+      (node.yes && node.no ? 50 : 0)
+  )
+  const height =
+    Math.max(leftDimensions.height, rightDimensions.height) + verticalSpacing
+
+  return { width, height }
+}
+
 export default function Index() {
   const [decisionTree, setDecisionTree] = useState<{
     title: { value: string; isEditing: boolean }
@@ -194,35 +222,6 @@ export default function Index() {
 
     if (decisionTree) {
       const { highestId } = getHighestId(decisionTree.node)
-
-      const minNodeWidth = 300
-      const verticalSpacing = 100
-
-      const calculateTreeDimensions = (
-        node: DecisionTreeNode
-      ): { width: number; height: number } => {
-        if (!node) return { width: 0, height: 0 }
-
-        const leftDimensions = node.no
-          ? calculateTreeDimensions(node.no)
-          : { width: 0, height: 0 }
-        const rightDimensions = node.yes
-          ? calculateTreeDimensions(node.yes)
-          : { width: 0, height: 0 }
-
-        const width = Math.max(
-          minNodeWidth,
-          leftDimensions.width +
-            rightDimensions.width +
-            (node.yes && node.no ? 50 : 0)
-        )
-        const height =
-          Math.max(leftDimensions.height, rightDimensions.height) +
-          verticalSpacing
-
-        return { width, height }
-      }
-
       setHighestId(highestId)
       setDecisionTreeTitleDraft(decisionTree.title.value)
       const { width } = calculateTreeDimensions(decisionTree.node)

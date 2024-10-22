@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { DecisionTreeNode } from '~/routes/_index'
+import { calculateTreeDimensions, DecisionTreeNode } from '~/routes/_index'
 import { Card } from '../ui/card'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
@@ -30,31 +30,6 @@ const TreeNode = ({
   const nodeRef = useRef<HTMLDivElement>(null)
   const prevPositionRef = useRef<NodePosition | null>(null)
   const verticalSpacing = 100
-  const minNodeWidth = 300
-
-  const calculateTreeDimensions = (
-    node: DecisionTreeNode
-  ): { width: number; height: number } => {
-    if (!node) return { width: 0, height: 0 }
-
-    const leftDimensions = node.no
-      ? calculateTreeDimensions(node.no)
-      : { width: 0, height: 0 }
-    const rightDimensions = node.yes
-      ? calculateTreeDimensions(node.yes)
-      : { width: 0, height: 0 }
-
-    const width = Math.max(
-      minNodeWidth,
-      leftDimensions.width +
-        rightDimensions.width +
-        (node.yes && node.no ? 50 : 0)
-    )
-    const height =
-      Math.max(leftDimensions.height, rightDimensions.height) + verticalSpacing
-
-    return { width, height }
-  }
 
   const { width } = calculateTreeDimensions(node)
 
