@@ -92,6 +92,7 @@ export default function Index() {
   }
 
   const updateTree = (newNode: DecisionTreeNode) => {
+    console.log('Updating tree with node:', newNode)
     if (decisionTree) {
       setDecisionTree({
         ...decisionTree,
@@ -136,55 +137,119 @@ export default function Index() {
   }
 
   const updateNodePosition = (id: number, position: NodePosition) => {
-    setNodePositions((prev) => new Map(prev).set(id, position))
+    console.log('Updating position for node:', { id, position })
+    setNodePositions((prev) => {
+      const newPositions = new Map(prev)
+      newPositions.set(id, position)
+      console.log(
+        'Updated nodePositions Map:',
+        Array.from(newPositions.entries())
+      )
+      return newPositions
+    })
   }
 
-  const getNewId = () => {
-    setHighestId((prev) => prev + 1)
-    return highestId + 1
-  }
+  const getNewId = (() => {
+    let nextId = 2 // Start at 2 since we already have IDs 0, 1, 2 in initial tree
+    return () => {
+      nextId += 1
+      // Update state for tracking but don't rely on it for ID generation
+      setHighestId(Math.max(highestId, nextId))
+      return nextId
+    }
+  })()
 
   const renderLines = () => {
     const lines: JSX.Element[] = []
-    const renderLinesRecursive = (node: DecisionTreeNode | null) => {
+
+    console.log(
+      'Current nodePositions Map:',
+      Array.from(nodePositions.entries()).map(([id, pos]) => ({
+        id,
+        x: pos.x,
+        y: pos.y,
+      }))
+    )
+
+    const renderLinesRecursive = (node: DecisionTreeNode | null, depth = 0) => {
       if (!node) return
+
+      console.log(`Processing node at depth ${depth}:`, {
+        id: node.id,
+        text: node.text.value,
+        hasYes: !!node.yes,
+        hasNo: !!node.no,
+      })
+
       const parentPos = nodePositions.get(node.id)
+
+      if (!parentPos) {
+        console.warn(`Missing position for node ${node.id}`)
+        return
+      }
+
+      // Handle Yes branch
       if (node.yes) {
-        const childPos = nodePositions.get(node.yes.id)
-        if (parentPos && childPos) {
+        const yesPos = nodePositions.get(node.yes.id)
+        if (!yesPos) {
+          console.warn(
+            `Missing position for YES child of node ${node.id} (child id: ${node.yes.id})`
+          )
+        } else {
+          console.log(
+            `Drawing YES line from node ${node.id} to ${node.yes.id}`,
+            {
+              from: parentPos,
+              to: yesPos,
+            }
+          )
           lines.push(
             <line
               key={`${node.id}-${node.yes.id}-yes`}
               x1={parentPos.x}
-              y1={parentPos.y}
-              x2={childPos.x}
-              y2={childPos.y - 40}
+              y1={parentPos.y + 40}
+              x2={yesPos.x}
+              y2={yesPos.y - 40}
               stroke="black"
             />
           )
         }
-        renderLinesRecursive(node.yes)
+        renderLinesRecursive(node.yes, depth + 1)
       }
+
+      // Handle No branch
       if (node.no) {
-        const childPos = nodePositions.get(node.no.id)
-        if (parentPos && childPos) {
+        const noPos = nodePositions.get(node.no.id)
+        if (!noPos) {
+          console.warn(
+            `Missing position for NO child of node ${node.id} (child id: ${node.no.id})`
+          )
+        } else {
+          console.log(`Drawing NO line from node ${node.id} to ${node.no.id}`, {
+            from: parentPos,
+            to: noPos,
+          })
           lines.push(
             <line
               key={`${node.id}-${node.no.id}-no`}
               x1={parentPos.x}
-              y1={parentPos.y}
-              x2={childPos.x}
-              y2={childPos.y - 40}
+              y1={parentPos.y + 40}
+              x2={noPos.x}
+              y2={noPos.y - 40}
               stroke="black"
             />
           )
         }
-        renderLinesRecursive(node.no)
+        renderLinesRecursive(node.no, depth + 1)
       }
     }
-    if (decisionTree) {
+
+    if (decisionTree?.node) {
+      console.log('Starting tree traversal with root node:', decisionTree.node)
       renderLinesRecursive(decisionTree.node)
     }
+
+    console.log('Final lines to be rendered:', lines.length)
     return lines
   }
 

@@ -75,16 +75,21 @@ const TreeNode = ({
   }, [node.id, onPositionUpdate, containerRef])
 
   const handleAddChildren = () => {
+    const yesId = getNewId()
+    // Ensure noId is generated immediately after yesId
+    const noId = getNewId()
+    console.log('Adding new children with IDs:', { yes: yesId, no: noId })
+
     updateNode({
       ...node,
       yes: {
-        id: getNewId(),
+        id: yesId,
         text: { value: 'Yes', isEditing: false },
         yes: null,
         no: null,
       },
       no: {
-        id: getNewId(),
+        id: noId,
         text: { value: 'No', isEditing: false },
         yes: null,
         no: null,
