@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react'
-import { calculateTreeDimensions, DecisionTreeNode } from '~/routes/_index'
+import { DecisionTreeNode } from '~/routes/_index'
 import { Card } from '../ui/card'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Plus, Trash2 } from 'lucide-react'
+import { calculateTreeDimensions } from '~/lib/utils'
 
 export type NodePosition = { x: number; y: number }
 
@@ -15,7 +16,7 @@ const TreeNode = ({
   depth,
   xOffset,
   onPositionUpdate,
-  getNewId,
+  getNewIds,
   containerRef,
 }: {
   node: DecisionTreeNode
@@ -24,7 +25,7 @@ const TreeNode = ({
   depth: number
   xOffset: number
   onPositionUpdate: (id: number, position: NodePosition) => void
-  getNewId: () => number
+  getNewIds: () => { noId: number; yesId: number } // Updated type
   containerRef: React.RefObject<HTMLDivElement>
 }) => {
   const nodeRef = useRef<HTMLDivElement>(null)
@@ -33,54 +34,64 @@ const TreeNode = ({
 
   const { width } = calculateTreeDimensions(node)
 
+  const maxDepth = 4
+
+  const maxNodesReached = depth >= maxDepth
+
   useEffect(() => {
+    const currentContainer = containerRef.current
+    const currentNode = nodeRef.current
+
     const updatePosition = () => {
-      if (nodeRef.current && containerRef.current) {
-        const nodeRect = nodeRef.current.getBoundingClientRect()
-        const containerRect = containerRef.current.getBoundingClientRect()
+      if (currentNode && currentContainer) {
+        const nodeRect = currentNode.getBoundingClientRect()
+        const containerRect = currentContainer.getBoundingClientRect()
         const newPosition = {
           x:
             nodeRect.left -
             containerRect.left +
             nodeRect.width / 2 +
-            containerRef.current.scrollLeft,
+            currentContainer.scrollLeft,
           y:
             nodeRect.top -
             containerRect.top +
             nodeRect.height / 2 +
-            containerRef.current.scrollTop,
+            currentContainer.scrollTop,
         }
 
-        // Only update if the position has changed
-        if (
-          JSON.stringify(newPosition) !==
-          JSON.stringify(prevPositionRef.current)
-        ) {
+        const hasChanged =
+          !prevPositionRef.current ||
+          Math.abs(prevPositionRef.current.x - newPosition.x) > 1 ||
+          Math.abs(prevPositionRef.current.y - newPosition.y) > 1
+
+        if (hasChanged) {
           prevPositionRef.current = newPosition
           onPositionUpdate(node.id, newPosition)
         }
       }
     }
 
-    updatePosition()
+    // Initial position update
+    const timeoutId = setTimeout(updatePosition, 50)
 
-    const resizeObserver = new ResizeObserver(updatePosition)
-    if (nodeRef.current) {
-      resizeObserver.observe(nodeRef.current)
+    const observer = new ResizeObserver(() => {
+      setTimeout(updatePosition, 50)
+    })
+
+    if (currentNode) {
+      observer.observe(currentNode)
     }
 
     return () => {
-      resizeObserver.disconnect()
+      clearTimeout(timeoutId)
+      observer.disconnect()
     }
   }, [node.id, onPositionUpdate, containerRef])
 
   const handleAddChildren = () => {
-    const yesId = getNewId()
-    // Ensure noId is generated immediately after yesId
-    const noId = getNewId()
-    console.log('Adding new children with IDs:', { yes: yesId, no: noId })
+    const { noId, yesId } = getNewIds()
 
-    updateNode({
+    const newNode = {
       ...node,
       yes: {
         id: yesId,
@@ -94,7 +105,9 @@ const TreeNode = ({
         yes: null,
         no: null,
       },
-    })
+    }
+
+    updateNode(newNode)
   }
 
   const handleDelete = () => {
@@ -141,8 +154,13 @@ const TreeNode = ({
             variant="ghost"
             size="icon"
             onClick={handleAddChildren}
-            disabled={node.yes !== null && node.no !== null}
-            className={node.id === 0 ? 'invisible' : ''}
+            className={
+              node.id === 0 ||
+              maxNodesReached ||
+              (node.yes !== null && node.no !== null)
+                ? 'invisible'
+                : ''
+            }
           >
             <Plus />
           </Button>
@@ -161,7 +179,7 @@ const TreeNode = ({
             depth={depth + 1}
             xOffset={xOffset - width / 4}
             onPositionUpdate={onPositionUpdate}
-            getNewId={getNewId}
+            getNewIds={getNewIds}
             containerRef={containerRef}
           />
         </div>
@@ -181,7 +199,7 @@ const TreeNode = ({
             depth={depth + 1}
             xOffset={xOffset + width / 4}
             onPositionUpdate={onPositionUpdate}
-            getNewId={getNewId}
+            getNewIds={getNewIds}
             containerRef={containerRef}
           />
         </div>

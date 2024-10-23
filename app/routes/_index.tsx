@@ -5,6 +5,7 @@ import TreeNode, { NodePosition } from '~/components/TreeNode/TreeNode'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import { calculateTreeDimensions } from '~/lib/utils'
 
 export const meta: MetaFunction = () => {
   return [
@@ -21,34 +22,6 @@ export type DecisionTreeNode = {
   parentId?: number
 }
 
-const minNodeWidth = 300
-const verticalSpacing = 100
-
-// Add this function at the top level, before your Index component
-export const calculateTreeDimensions = (
-  node: DecisionTreeNode
-): { width: number; height: number } => {
-  if (!node) return { width: 0, height: 0 }
-
-  const leftDimensions = node.no
-    ? calculateTreeDimensions(node.no)
-    : { width: 0, height: 0 }
-  const rightDimensions = node.yes
-    ? calculateTreeDimensions(node.yes)
-    : { width: 0, height: 0 }
-
-  const width = Math.max(
-    minNodeWidth,
-    leftDimensions.width +
-      rightDimensions.width +
-      (node.yes && node.no ? 50 : 0)
-  )
-  const height =
-    Math.max(leftDimensions.height, rightDimensions.height) + verticalSpacing
-
-  return { width, height }
-}
-
 export default function Index() {
   const [decisionTree, setDecisionTree] = useState<{
     title: { value: string; isEditing: boolean }
@@ -56,8 +29,9 @@ export default function Index() {
   } | null>(null)
 
   const [treeWidth, setTreeWidth] = useState(0)
+  const [treeHeight, setTreeHeight] = useState(0)
 
-  const [decisionTreeTitleDraft, setDecisionTreeTitleDraft] = useState(
+  const [treeTitleDraft, setTreeTitleDraft] = useState(
     decisionTree?.title.value || ''
   )
 
@@ -79,25 +53,27 @@ export default function Index() {
           text: { value: 'Yes', isEditing: false },
           yes: null,
           no: null,
+          parentId: 0,
         },
         no: {
           id: 2,
           text: { value: 'No', isEditing: false },
           yes: null,
           no: null,
+          parentId: 0,
         },
       },
     })
-    setHighestId(0)
   }
 
   const updateTree = (newNode: DecisionTreeNode) => {
-    console.log('Updating tree with node:', newNode)
     if (decisionTree) {
+      const oldPositions = new Map(nodePositions)
       setDecisionTree({
         ...decisionTree,
         node: newNode,
       })
+      setNodePositions(oldPositions)
     }
   }
 
@@ -106,7 +82,7 @@ export default function Index() {
       setDecisionTree({
         ...decisionTree,
         title: {
-          value: decisionTreeTitleDraft || 'Decision Tree Title',
+          value: treeTitleDraft || 'Decision Tree Title',
           isEditing: !decisionTree.title.isEditing,
         },
       })
@@ -137,73 +113,33 @@ export default function Index() {
   }
 
   const updateNodePosition = (id: number, position: NodePosition) => {
-    console.log('Updating position for node:', { id, position })
     setNodePositions((prev) => {
       const newPositions = new Map(prev)
       newPositions.set(id, position)
-      console.log(
-        'Updated nodePositions Map:',
-        Array.from(newPositions.entries())
-      )
       return newPositions
     })
   }
 
-  const getNewId = (() => {
-    let nextId = 2 // Start at 2 since we already have IDs 0, 1, 2 in initial tree
-    return () => {
-      nextId += 1
-      // Update state for tracking but don't rely on it for ID generation
-      setHighestId(Math.max(highestId, nextId))
-      return nextId
-    }
-  })()
+  const getNewIds = () => {
+    const noId = highestId + 1
+    const yesId = noId + 1
+    setHighestId(yesId)
+    return { noId, yesId }
+  }
 
   const renderLines = () => {
     const lines: JSX.Element[] = []
 
-    console.log(
-      'Current nodePositions Map:',
-      Array.from(nodePositions.entries()).map(([id, pos]) => ({
-        id,
-        x: pos.x,
-        y: pos.y,
-      }))
-    )
-
-    const renderLinesRecursive = (node: DecisionTreeNode | null, depth = 0) => {
+    const renderLinesRecursive = (node: DecisionTreeNode | null) => {
       if (!node) return
 
-      console.log(`Processing node at depth ${depth}:`, {
-        id: node.id,
-        text: node.text.value,
-        hasYes: !!node.yes,
-        hasNo: !!node.no,
-      })
-
       const parentPos = nodePositions.get(node.id)
+      if (!parentPos) return
 
-      if (!parentPos) {
-        console.warn(`Missing position for node ${node.id}`)
-        return
-      }
-
-      // Handle Yes branch
       if (node.yes) {
         const yesPos = nodePositions.get(node.yes.id)
-        if (!yesPos) {
-          console.warn(
-            `Missing position for YES child of node ${node.id} (child id: ${node.yes.id})`
-          )
-        } else {
-          console.log(
-            `Drawing YES line from node ${node.id} to ${node.yes.id}`,
-            {
-              from: parentPos,
-              to: yesPos,
-            }
-          )
-          lines.push(
+        if (yesPos) {
+          const line = (
             <line
               key={`${node.id}-${node.yes.id}-yes`}
               x1={parentPos.x}
@@ -211,25 +147,18 @@ export default function Index() {
               x2={yesPos.x}
               y2={yesPos.y - 40}
               stroke="black"
+              strokeWidth="2"
             />
           )
+          lines.push(line)
         }
-        renderLinesRecursive(node.yes, depth + 1)
+        renderLinesRecursive(node.yes)
       }
 
-      // Handle No branch
       if (node.no) {
         const noPos = nodePositions.get(node.no.id)
-        if (!noPos) {
-          console.warn(
-            `Missing position for NO child of node ${node.id} (child id: ${node.no.id})`
-          )
-        } else {
-          console.log(`Drawing NO line from node ${node.id} to ${node.no.id}`, {
-            from: parentPos,
-            to: noPos,
-          })
-          lines.push(
+        if (noPos) {
+          const line = (
             <line
               key={`${node.id}-${node.no.id}-no`}
               x1={parentPos.x}
@@ -237,19 +166,19 @@ export default function Index() {
               x2={noPos.x}
               y2={noPos.y - 40}
               stroke="black"
+              strokeWidth="2"
             />
           )
+          lines.push(line)
         }
-        renderLinesRecursive(node.no, depth + 1)
+        renderLinesRecursive(node.no)
       }
     }
 
     if (decisionTree?.node) {
-      console.log('Starting tree traversal with root node:', decisionTree.node)
       renderLinesRecursive(decisionTree.node)
     }
 
-    console.log('Final lines to be rendered:', lines.length)
     return lines
   }
 
@@ -288,9 +217,10 @@ export default function Index() {
     if (decisionTree) {
       const { highestId } = getHighestId(decisionTree.node)
       setHighestId(highestId)
-      setDecisionTreeTitleDraft(decisionTree.title.value)
-      const { width } = calculateTreeDimensions(decisionTree.node)
+      setTreeTitleDraft(decisionTree.title.value)
+      const { width, height } = calculateTreeDimensions(decisionTree.node)
       setTreeWidth(width)
+      setTreeHeight(height)
     }
   }, [decisionTree])
 
@@ -325,11 +255,9 @@ export default function Index() {
                       </Label>
                       <Input
                         id="decisionTreeTitle"
-                        value={decisionTreeTitleDraft}
+                        value={treeTitleDraft}
                         placeholder="Decision Tree Title"
-                        onChange={(e) =>
-                          setDecisionTreeTitleDraft(e.target.value)
-                        }
+                        onChange={(e) => setTreeTitleDraft(e.target.value)}
                         className="text-4xl text-center"
                       />
                     </>
@@ -348,13 +276,17 @@ export default function Index() {
 
               <div
                 className="relative w-full overflow-auto"
-                style={{ height: '500px' }}
+                style={{ height: '800px' }}
                 ref={treeContainerRef}
               >
                 <svg
                   width="100%"
                   height="100%"
                   className="top-0 left-0 absolute pointer-events-none"
+                  style={{
+                    minHeight: `${treeHeight * 2}px`,
+                    minWidth: `${treeWidth * 1.1}px`,
+                  }}
                 >
                   {renderLines()}
                 </svg>
@@ -366,7 +298,7 @@ export default function Index() {
                     depth={0}
                     xOffset={0}
                     onPositionUpdate={updateNodePosition}
-                    getNewId={getNewId}
+                    getNewIds={getNewIds}
                     containerRef={treeContainerRef}
                   />
                 </div>
