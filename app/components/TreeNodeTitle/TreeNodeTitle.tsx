@@ -41,7 +41,7 @@ export const TreeNodeTitle: React.FC<TreeNodeTitleProps> = ({
     ) : (
       <Button
         variant="ghost"
-        className="hover:bg-gray-100 py-2 w-full text-center text-xl"
+        className="hover:bg-gray-100 py-2 w-full text-center text-xl cursor-text"
         onClick={onEditToggle}
         aria-label="edit text"
       >
