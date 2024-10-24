@@ -205,6 +205,17 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
             pointerEvents: 'none',
           }}
         >
+          <defs>
+            <pattern
+              id="large-dot-pattern"
+              width="40"
+              height="40"
+              patternUnits="userSpaceOnUse"
+            >
+              <circle cx="4" cy="4" r="2" fill="#e5e7eb" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#large-dot-pattern)" />
           {renderLines()}
         </svg>
       </div>
