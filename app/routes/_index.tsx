@@ -171,12 +171,12 @@ export default function Index() {
                 node={decisionTree.node}
                 treeHeight={treeHeight}
                 treeWidth={treeWidth}
-                nodePositions={nodePositions}
                 updateTree={updateTree}
                 deleteNode={deleteNode}
                 onPositionUpdate={updateNodePosition}
                 getNewIds={getNewIds}
                 containerRef={treeContainerRef}
+                nodePositions={nodePositions}
               />
             </>
           ) : (
