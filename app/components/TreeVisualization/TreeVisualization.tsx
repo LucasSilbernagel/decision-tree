@@ -35,25 +35,31 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
     typeof window !== 'undefined' ? window.innerHeight : 800
   const containerHeight = Math.max(viewportHeight - 200, treeHeight)
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.target instanceof SVGElement || e.target instanceof HTMLDivElement) {
-      setIsDragging(true)
-      if (containerRef.current) {
-        setStartX(e.pageX - containerRef.current.offsetLeft)
-        setStartY(e.pageY - containerRef.current.offsetTop)
-        setScrollLeft(containerRef.current.scrollLeft)
-        setScrollTop(containerRef.current.scrollTop)
-        containerRef.current.style.cursor = 'grabbing'
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (
+        e.target instanceof SVGElement ||
+        e.target instanceof HTMLDivElement
+      ) {
+        setIsDragging(true)
+        if (containerRef.current) {
+          setStartX(e.pageX - containerRef.current.offsetLeft)
+          setStartY(e.pageY - containerRef.current.offsetTop)
+          setScrollLeft(containerRef.current.scrollLeft)
+          setScrollTop(containerRef.current.scrollTop)
+          containerRef.current.style.cursor = 'grabbing'
+        }
       }
-    }
-  }, [])
+    },
+    [containerRef]
+  )
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false)
     if (containerRef.current) {
       containerRef.current.style.cursor = 'grab'
     }
-  }, [])
+  }, [containerRef])
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
@@ -69,7 +75,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
       containerRef.current.scrollLeft = scrollLeft - walkX
       containerRef.current.scrollTop = scrollTop - walkY
     },
-    [isDragging, startX, startY, scrollLeft, scrollTop]
+    [isDragging, startX, startY, scrollLeft, scrollTop, containerRef]
   )
 
   const renderLines = () => {
