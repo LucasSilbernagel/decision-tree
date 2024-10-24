@@ -1,13 +1,11 @@
 import { useEffect, useRef } from 'react'
-import { DecisionTreeNode } from '~/routes/_index'
+import { DecisionTreeNode, NodePosition } from '~/types'
 import { Card } from '../ui/card'
-import { Label } from '../ui/label'
-import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Plus, Trash2 } from 'lucide-react'
+import { TREE_CONSTANTS } from '~/constants'
+import { TreeNodeTitle } from '../TreeNodeTitle/TreeNodeTitle'
 import { calculateTreeDimensions } from '~/lib/utils'
-
-export type NodePosition = { x: number; y: number }
 
 const TreeNode = ({
   node,
@@ -30,7 +28,7 @@ const TreeNode = ({
 }) => {
   const nodeRef = useRef<HTMLDivElement>(null)
   const prevPositionRef = useRef<NodePosition | null>(null)
-  const verticalSpacing = 100
+  const { VERTICAL_SPACING, MAX_DEPTH } = TREE_CONSTANTS
 
   // Calculate dimensions for current subtree
   const { width } = calculateTreeDimensions(node, depth)
@@ -43,8 +41,7 @@ const TreeNode = ({
     ? calculateTreeDimensions(node.yes, depth + 1).width
     : 0
 
-  const maxDepth = 4
-  const maxNodesReached = depth >= maxDepth
+  const maxNodesReached = depth >= MAX_DEPTH
 
   useEffect(() => {
     const currentContainer = containerRef.current
@@ -128,31 +125,33 @@ const TreeNode = ({
     })
   }
 
+  const handleEditToggle = () => {
+    updateNode({
+      ...node,
+      text: { ...node.text, isEditing: !node.text.isEditing },
+    })
+  }
+
   return (
     <div
       className="relative"
       style={{
         width: `${width}px`,
-        minHeight: `${verticalSpacing}px`,
+        minHeight: `${VERTICAL_SPACING}px`,
       }}
     >
       <Card
         ref={nodeRef}
         className="left-1/2 absolute flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm border rounded-lg w-[300px] transform -translate-x-1/2"
-        style={{ top: `${depth * verticalSpacing}px` }}
+        style={{ top: `${depth * VERTICAL_SPACING}px` }}
       >
-        <div className="w-full">
-          <Label htmlFor={`condition-${node.id}`} className="sr-only">
-            Condition {node.id}
-          </Label>
-          <Input
-            className="w-full text-center text-xl"
-            id={`condition-${node.id}`}
-            value={node.text.value}
-            onChange={handleTextChange}
-            placeholder="Yes or no?"
-          />
-        </div>
+        <TreeNodeTitle
+          id={node.id}
+          value={node.text.value}
+          isEditing={node.text.isEditing}
+          onChange={handleTextChange}
+          onEditToggle={handleEditToggle}
+        />
         <div className="flex justify-between p-2 w-full">
           <Button
             variant="ghost"
@@ -184,7 +183,7 @@ const TreeNode = ({
         <div
           className="left-0 absolute"
           style={{
-            top: `${verticalSpacing}px`,
+            top: `${VERTICAL_SPACING}px`,
             width: `${noWidth}px`,
           }}
         >
@@ -205,7 +204,7 @@ const TreeNode = ({
         <div
           className="right-0 absolute"
           style={{
-            top: `${verticalSpacing}px`,
+            top: `${VERTICAL_SPACING}px`,
             width: `${yesWidth}px`,
           }}
         >
