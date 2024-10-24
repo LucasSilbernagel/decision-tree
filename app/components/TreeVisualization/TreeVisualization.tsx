@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react'
 import { DecisionTreeNode, NodePosition } from '~/types'
 import TreeNode from '~/components/TreeNode/TreeNode'
+import { BackToStartButton } from '../BackToStartButton/BackToStartButton'
 
 interface TreeVisualizationProps {
   node: DecisionTreeNode
@@ -30,6 +31,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
   const [startY, setStartY] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
   const [scrollTop, setScrollTop] = useState(0)
+  const [isRootVisible, setIsRootVisible] = useState(true)
 
   const viewportHeight =
     typeof window !== 'undefined' ? window.innerHeight : 800
@@ -77,6 +79,23 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
     },
     [isDragging, startX, startY, scrollLeft, scrollTop, containerRef]
   )
+
+  const handleRootVisibilityChange = useCallback((isVisible: boolean) => {
+    setIsRootVisible(isVisible)
+  }, [])
+
+  const scrollToRoot = useCallback(() => {
+    if (containerRef.current) {
+      const rootPos = nodePositions.get(0)
+      if (rootPos) {
+        containerRef.current.scrollTo({
+          left: rootPos.x - containerRef.current.clientWidth / 2,
+          top: 0,
+          behavior: 'smooth',
+        })
+      }
+    }
+  }, [nodePositions, containerRef])
 
   const renderLines = () => {
     const lines: JSX.Element[] = []
@@ -181,70 +200,74 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
   }
 
   return (
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-    <div
-      className="relative w-full overflow-auto select-none"
-      style={{
-        height: `${containerHeight}px`,
-        cursor: isDragging ? 'grabbing' : 'grab',
-        userSelect: 'none',
-        WebkitUserSelect: 'none',
-      }}
-      ref={containerRef}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseUp}
-    >
+    <>
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
-        className="top-0 left-0 absolute w-full h-full"
+        className="relative w-full overflow-auto select-none"
         style={{
-          minHeight: `${Math.max(treeHeight * 2, containerHeight)}px`,
-          minWidth: `${treeWidth * 1.1}px`,
-          pointerEvents: 'none',
+          height: `${containerHeight}px`,
+          cursor: isDragging ? 'grabbing' : 'grab',
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
         }}
+        ref={containerRef}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseUp}
       >
-        <svg
-          width="100%"
-          height="100%"
+        <div
+          className="top-0 left-0 absolute w-full h-full"
           style={{
+            minHeight: `${Math.max(treeHeight * 2, containerHeight)}px`,
+            minWidth: `${treeWidth * 1.1}px`,
             pointerEvents: 'none',
           }}
         >
-          <defs>
-            <pattern
-              id="large-dot-pattern"
-              width="40"
-              height="40"
-              patternUnits="userSpaceOnUse"
-            >
-              <circle cx="4" cy="4" r="2" fill="#e5e7eb" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#large-dot-pattern)" />
-          {renderLines()}
-        </svg>
-      </div>
-      <div
-        className="relative px-4 md:px-12 min-w-full"
-        style={{
-          pointerEvents: 'none',
-          minHeight: `${Math.max(treeHeight * 2, containerHeight)}px`,
-        }}
-      >
-        <div style={{ pointerEvents: 'all' }}>
-          <TreeNode
-            node={node}
-            updateNode={updateTree}
-            deleteNode={deleteNode}
-            depth={0}
-            xOffset={0}
-            onPositionUpdate={onPositionUpdate}
-            getNewIds={getNewIds}
-            containerRef={containerRef}
-          />
+          <svg
+            width="100%"
+            height="100%"
+            style={{
+              pointerEvents: 'none',
+            }}
+          >
+            <defs>
+              <pattern
+                id="large-dot-pattern"
+                width="40"
+                height="40"
+                patternUnits="userSpaceOnUse"
+              >
+                <circle cx="4" cy="4" r="2" fill="#e5e7eb" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#large-dot-pattern)" />
+            {renderLines()}
+          </svg>
+        </div>
+        <div
+          className="relative px-4 md:px-12 min-w-full"
+          style={{
+            pointerEvents: 'none',
+            minHeight: `${Math.max(treeHeight * 2, containerHeight)}px`,
+          }}
+        >
+          <div style={{ pointerEvents: 'all' }}>
+            <TreeNode
+              node={node}
+              updateNode={updateTree}
+              deleteNode={deleteNode}
+              depth={0}
+              xOffset={0}
+              onPositionUpdate={onPositionUpdate}
+              getNewIds={getNewIds}
+              containerRef={containerRef}
+              onRootVisibilityChange={handleRootVisibilityChange}
+            />
+          </div>
         </div>
       </div>
-    </div>
+      {!isRootVisible && <BackToStartButton onClick={scrollToRoot} />}
+    </>
   )
 }

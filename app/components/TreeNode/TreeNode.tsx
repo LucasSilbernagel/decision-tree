@@ -16,6 +16,7 @@ const TreeNode = ({
   onPositionUpdate,
   getNewIds,
   containerRef,
+  onRootVisibilityChange,
 }: {
   node: DecisionTreeNode
   updateNode: (newNode: DecisionTreeNode) => void
@@ -25,6 +26,7 @@ const TreeNode = ({
   onPositionUpdate: (id: number, position: NodePosition) => void
   getNewIds: () => { noId: number; yesId: number }
   containerRef: React.RefObject<HTMLDivElement>
+  onRootVisibilityChange?: (isVisible: boolean) => void
 }) => {
   const nodeRef = useRef<HTMLDivElement>(null)
   const prevPositionRef = useRef<NodePosition | null>(null)
@@ -91,6 +93,30 @@ const TreeNode = ({
       observer.disconnect()
     }
   }, [node.id, onPositionUpdate, containerRef])
+
+  useEffect(() => {
+    const currentNode = nodeRef.current
+
+    if (node.id === 0 && currentNode && onRootVisibilityChange) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            onRootVisibilityChange(entry.isIntersecting)
+          })
+        },
+        {
+          root: containerRef.current,
+          threshold: 0.1,
+        }
+      )
+
+      observer.observe(currentNode)
+
+      return () => {
+        observer.disconnect()
+      }
+    }
+  }, [containerRef, node.id, onRootVisibilityChange])
 
   const handleAddChildren = () => {
     const { noId, yesId } = getNewIds()
