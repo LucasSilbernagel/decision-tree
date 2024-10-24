@@ -146,8 +146,9 @@ export default function Index() {
               y1={parentPos.y + 40}
               x2={yesPos.x}
               y2={yesPos.y - 40}
-              stroke="black"
-              strokeWidth="2"
+              stroke="green"
+              strokeWidth="3"
+              strokeDasharray="10,5"
             />
           )
           lines.push(line)
@@ -165,8 +166,9 @@ export default function Index() {
               y1={parentPos.y + 40}
               x2={noPos.x}
               y2={noPos.y - 40}
-              stroke="black"
-              strokeWidth="2"
+              stroke="red"
+              strokeWidth="3"
+              strokeDasharray="10,5,2,5"
             />
           )
           lines.push(line)
