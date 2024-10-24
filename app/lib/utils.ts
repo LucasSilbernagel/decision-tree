@@ -7,26 +7,31 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const calculateTreeDimensions = (
-  node: DecisionTreeNode
+  node: DecisionTreeNode,
+  depth: number = 0
 ): { width: number; height: number } => {
   const minNodeWidth = 300
   const verticalSpacing = 100
+  const horizontalSpacing = 100
+  const widthMultiplier = 1.2
 
   if (!node) return { width: 0, height: 0 }
 
   const leftDimensions = node.no
-    ? calculateTreeDimensions(node.no)
+    ? calculateTreeDimensions(node.no, depth + 1)
     : { width: 0, height: 0 }
   const rightDimensions = node.yes
-    ? calculateTreeDimensions(node.yes)
+    ? calculateTreeDimensions(node.yes, depth + 1)
     : { width: 0, height: 0 }
 
+  const depthAdjustedWidth = minNodeWidth * Math.pow(widthMultiplier, depth)
+
+  // Calculate total width needed for this subtree
   const width = Math.max(
-    minNodeWidth,
-    leftDimensions.width +
-      rightDimensions.width +
-      (node.yes && node.no ? 50 : 0)
+    depthAdjustedWidth,
+    leftDimensions.width + rightDimensions.width + horizontalSpacing
   )
+
   const height =
     Math.max(leftDimensions.height, rightDimensions.height) + verticalSpacing
 

@@ -25,17 +25,25 @@ const TreeNode = ({
   depth: number
   xOffset: number
   onPositionUpdate: (id: number, position: NodePosition) => void
-  getNewIds: () => { noId: number; yesId: number } // Updated type
+  getNewIds: () => { noId: number; yesId: number }
   containerRef: React.RefObject<HTMLDivElement>
 }) => {
   const nodeRef = useRef<HTMLDivElement>(null)
   const prevPositionRef = useRef<NodePosition | null>(null)
   const verticalSpacing = 100
 
-  const { width } = calculateTreeDimensions(node)
+  // Calculate dimensions for current subtree
+  const { width } = calculateTreeDimensions(node, depth)
+
+  // Calculate child widths
+  const noWidth = node.no
+    ? calculateTreeDimensions(node.no, depth + 1).width
+    : 0
+  const yesWidth = node.yes
+    ? calculateTreeDimensions(node.yes, depth + 1).width
+    : 0
 
   const maxDepth = 4
-
   const maxNodesReached = depth >= maxDepth
 
   useEffect(() => {
@@ -71,7 +79,6 @@ const TreeNode = ({
       }
     }
 
-    // Initial position update
     const timeoutId = setTimeout(updatePosition, 50)
 
     const observer = new ResizeObserver(() => {
@@ -122,7 +129,13 @@ const TreeNode = ({
   }
 
   return (
-    <div className="relative" style={{ width: `${width}px` }}>
+    <div
+      className="relative"
+      style={{
+        width: `${width}px`,
+        minHeight: `${verticalSpacing}px`,
+      }}
+    >
       <Card
         ref={nodeRef}
         className="left-1/2 absolute flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm border rounded-lg w-[300px] transform -translate-x-1/2"
@@ -170,7 +183,10 @@ const TreeNode = ({
       {node.no && (
         <div
           className="left-0 absolute"
-          style={{ top: `${verticalSpacing}px`, width: `${width / 2}px` }}
+          style={{
+            top: `${verticalSpacing}px`,
+            width: `${noWidth}px`,
+          }}
         >
           <TreeNode
             node={node.no}
@@ -188,7 +204,10 @@ const TreeNode = ({
       {node.yes && (
         <div
           className="right-0 absolute"
-          style={{ top: `${verticalSpacing}px`, width: `${width / 2}px` }}
+          style={{
+            top: `${verticalSpacing}px`,
+            width: `${yesWidth}px`,
+          }}
         >
           <TreeNode
             node={node.yes}
