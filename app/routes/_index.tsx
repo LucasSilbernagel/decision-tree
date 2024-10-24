@@ -139,19 +139,44 @@ export default function Index() {
       if (node.yes) {
         const yesPos = nodePositions.get(node.yes.id)
         if (yesPos) {
-          const line = (
-            <line
-              key={`${node.id}-${node.yes.id}-yes`}
-              x1={parentPos.x}
-              y1={parentPos.y + 40}
-              x2={yesPos.x}
-              y2={yesPos.y - 40}
-              stroke="green"
-              strokeWidth="3"
-              strokeDasharray="10,5"
-            />
+          // Calculate midpoint for text positioning
+          const midX = (parentPos.x + yesPos.x) / 2
+          const midY = (parentPos.y + 40 + yesPos.y - 40) / 2
+
+          const elements = (
+            <g key={`${node.id}-${node.yes.id}-yes-group`}>
+              <line
+                x1={parentPos.x}
+                y1={parentPos.y + 40}
+                x2={yesPos.x}
+                y2={yesPos.y - 40}
+                stroke="green"
+                strokeWidth="3"
+                strokeDasharray="10,5"
+              />
+              <circle
+                cx={midX}
+                cy={midY}
+                r="16"
+                fill="white"
+                stroke="black"
+                strokeWidth="1"
+              />
+              {/* Text label */}
+              <text
+                x={midX}
+                y={midY}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontSize="16"
+                fill="black"
+                fontWeight="bold"
+              >
+                Yes
+              </text>
+            </g>
           )
-          lines.push(line)
+          lines.push(elements)
         }
         renderLinesRecursive(node.yes)
       }
@@ -159,19 +184,44 @@ export default function Index() {
       if (node.no) {
         const noPos = nodePositions.get(node.no.id)
         if (noPos) {
-          const line = (
-            <line
-              key={`${node.id}-${node.no.id}-no`}
-              x1={parentPos.x}
-              y1={parentPos.y + 40}
-              x2={noPos.x}
-              y2={noPos.y - 40}
-              stroke="red"
-              strokeWidth="3"
-              strokeDasharray="10,5,2,5"
-            />
+          // Calculate midpoint for text positioning
+          const midX = (parentPos.x + noPos.x) / 2
+          const midY = (parentPos.y + 40 + noPos.y - 40) / 2
+
+          const elements = (
+            <g key={`${node.id}-${node.no.id}-no-group`}>
+              <line
+                x1={parentPos.x}
+                y1={parentPos.y + 40}
+                x2={noPos.x}
+                y2={noPos.y - 40}
+                stroke="red"
+                strokeWidth="3"
+                strokeDasharray="10,5,2,5"
+              />
+              <circle
+                cx={midX}
+                cy={midY}
+                r="16"
+                fill="white"
+                stroke="black"
+                strokeWidth="1"
+              />
+              {/* Text label */}
+              <text
+                x={midX}
+                y={midY}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontSize="16"
+                fill="black"
+                fontWeight="bold"
+              >
+                No
+              </text>
+            </g>
           )
-          lines.push(line)
+          lines.push(elements)
         }
         renderLinesRecursive(node.no)
       }
