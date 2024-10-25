@@ -168,7 +168,7 @@ const TreeNode = ({
     >
       <Card
         ref={nodeRef}
-        className="left-1/2 absolute flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm border rounded-lg w-[300px] transform -translate-x-1/2"
+        className="left-1/2 z-10 absolute flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm border rounded-lg w-[300px] transform -translate-x-1/2"
         style={{ top: `${depth * VERTICAL_SPACING}px` }}
       >
         <TreeNodeTitle
