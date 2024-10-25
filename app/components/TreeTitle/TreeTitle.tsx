@@ -17,7 +17,7 @@ export const TreeTitle: React.FC<TreeTitleProps> = ({
   onTitleDraftChange,
   onTitleEdit,
 }) => (
-  <div className="flex justify-center items-center gap-6 mb-6">
+  <div className="flex justify-center items-center gap-6 mt-4 mb-6">
     <div>
       {title.isEditing ? (
         <>
@@ -30,16 +30,30 @@ export const TreeTitle: React.FC<TreeTitleProps> = ({
             placeholder="Decision Tree Title"
             onChange={(e) => onTitleDraftChange(e.target.value)}
             className="text-4xl text-center"
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
           />
         </>
       ) : (
-        <h2 className="text-4xl text-center">{title.value}</h2>
+        <Button
+          variant="ghost"
+          onClick={onTitleEdit}
+          className="flex gap-4 transition-all duration-300 cursor-text group"
+        >
+          <span className="text-4xl">{title.value}</span>
+          <span className="opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60">
+            <Pencil />
+          </span>
+        </Button>
+        // <h2 className="text-4xl text-center">{title.value}</h2>
       )}
     </div>
-    <div>
-      <Button variant="ghost" size="icon" onClick={onTitleEdit}>
-        {title.isEditing ? <Save /> : <Pencil />}
-      </Button>
-    </div>
+    {title.isEditing && (
+      <div>
+        <Button variant="ghost" size="icon" onClick={onTitleEdit}>
+          <Save />
+        </Button>
+      </div>
+    )}
   </div>
 )

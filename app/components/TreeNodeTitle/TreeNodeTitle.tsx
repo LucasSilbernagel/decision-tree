@@ -2,6 +2,7 @@ import React from 'react'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Button } from '~/components/ui/button'
+import { Pencil } from 'lucide-react'
 
 type TreeNodeTitleProps = {
   id: number
@@ -31,7 +32,7 @@ export const TreeNodeTitle: React.FC<TreeNodeTitleProps> = ({
         placeholder="Yes or no?"
         onBlur={onEditToggle}
         // eslint-disable-next-line jsx-a11y/no-autofocus
-        autoFocus={true}
+        autoFocus
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             onEditToggle()
@@ -41,11 +42,12 @@ export const TreeNodeTitle: React.FC<TreeNodeTitleProps> = ({
     ) : (
       <Button
         variant="ghost"
-        className="hover:bg-gray-100 py-2 w-full text-center text-xl cursor-text"
+        className="relative hover:bg-gray-100 py-2 w-full max-w-full text-center text-xl transition-all duration-300 cursor-text group"
         onClick={onEditToggle}
         aria-label="edit text"
       >
-        {value || 'Yes or no?'}
+        <span>{value || 'Yes or no?'}</span>{' '}
+        <Pencil className="right-2 absolute opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60" />
       </Button>
     )}
   </div>
