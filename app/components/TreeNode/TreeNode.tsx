@@ -144,7 +144,7 @@ const TreeNode = ({
     deleteNode(node.id)
   }
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateNode({
       ...node,
       text: { ...node.text, value: e.target.value },
@@ -168,7 +168,7 @@ const TreeNode = ({
     >
       <Card
         ref={nodeRef}
-        className="left-1/2 z-10 absolute flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm border rounded-lg w-[300px] transform -translate-x-1/2"
+        className="left-1/2 absolute flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm p-0 border rounded-lg w-[300px] transform -translate-x-1/2 overflow-hidden"
         style={{ top: `${depth * VERTICAL_SPACING}px` }}
       >
         <TreeNodeTitle
@@ -178,7 +178,7 @@ const TreeNode = ({
           onChange={handleTextChange}
           onEditToggle={handleEditToggle}
         />
-        <div className="flex justify-between p-2 w-full">
+        <div className="flex justify-between p-2 border-t w-full">
           <Button
             variant="ghost"
             size="icon"

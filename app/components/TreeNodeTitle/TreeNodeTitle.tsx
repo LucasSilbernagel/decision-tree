@@ -1,14 +1,14 @@
 import React from 'react'
-import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Button } from '~/components/ui/button'
 import { Pencil } from 'lucide-react'
+import { Textarea } from '../ui/textarea'
 
 type TreeNodeTitleProps = {
   id: number
   value: string
   isEditing: boolean
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
   onEditToggle: () => void
 }
 
@@ -24,8 +24,8 @@ export const TreeNodeTitle: React.FC<TreeNodeTitleProps> = ({
       Condition {id}
     </Label>
     {isEditing ? (
-      <Input
-        className="w-full text-center text-xl"
+      <Textarea
+        className="px-4 py-3 w-full min-h-[96px] max-h-[96px] text-center text-lg leading-normal overflow-auto resize-none"
         id={`condition-${id}`}
         value={value}
         onChange={onChange}
@@ -34,7 +34,8 @@ export const TreeNodeTitle: React.FC<TreeNodeTitleProps> = ({
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
         onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault()
             onEditToggle()
           }
         }}
@@ -42,12 +43,14 @@ export const TreeNodeTitle: React.FC<TreeNodeTitleProps> = ({
     ) : (
       <Button
         variant="ghost"
-        className="relative hover:bg-gray-100 py-2 w-full max-w-full text-center text-xl transition-all duration-300 cursor-text group"
+        className="relative hover:bg-gray-100 p-3 w-full h-[96px] transition-all duration-300 cursor-text overflow-hidden group"
         onClick={onEditToggle}
         aria-label="edit text"
       >
-        <span>{value || 'Yes or no?'}</span>{' '}
-        <Pencil className="right-2 absolute opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60" />
+        <span className="m-0 line-clamp-3 pr-8 text-center text-lg text-wrap overflow-hidden">
+          {value || 'Yes or no?'}
+        </span>
+        <Pencil className="top-3 right-3 absolute opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60 w-5 h-5" />
       </Button>
     )}
   </div>
