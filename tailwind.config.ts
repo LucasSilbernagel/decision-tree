@@ -23,6 +23,9 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       colors: {},
+      transitionDuration: {
+        '3000': '3000ms',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],
