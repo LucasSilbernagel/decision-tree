@@ -3,6 +3,7 @@ import { Pencil } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import DOMPurify from 'dompurify'
 
 type TreeTitleProps = {
   title: { value: string; isEditing: boolean }
@@ -26,7 +27,7 @@ export const TreeTitle: React.FC<TreeTitleProps> = ({
           </Label>
           <Input
             id="decisionTreeTitle"
-            value={treeTitleDraft}
+            value={DOMPurify.sanitize(treeTitleDraft)}
             placeholder="Decision Tree Title"
             onChange={(e) => onTitleDraftChange(e.target.value)}
             className="mx-auto max-w-max text-3xl text-center"

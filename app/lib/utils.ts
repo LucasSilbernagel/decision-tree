@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from 'clsx'
+import DOMPurify from 'dompurify'
 import { twMerge } from 'tailwind-merge'
 import { TREE_CONSTANTS } from '~/constants'
 import { DecisionTree, DecisionTreeNode } from '~/types'
@@ -72,22 +73,24 @@ type SerializedTree = {
   node: SerializedNode
 }
 
-const getPersistentTreeState = (tree: DecisionTree): SerializedTree => ({
-  title: tree.title.value,
-  node: getPersistentNodeState(tree.node),
-})
-
-const getPersistentNodeState = (node: DecisionTreeNode): SerializedNode => ({
-  id: node.id,
-  text: node.text.value,
-  yes: node.yes ? getPersistentNodeState(node.yes) : null,
-  no: node.no ? getPersistentNodeState(node.no) : null,
-  parentId: node.parentId,
-})
-
 export const serializeDecisionTree = (tree: DecisionTree): string => {
-  const persistentState = getPersistentTreeState(tree)
-  return encodeURIComponent(JSON.stringify(persistentState))
+  const cleanNode = (node: DecisionTreeNode | null): SerializedNode | null => {
+    if (!node) return null
+    return {
+      id: node.id,
+      text: DOMPurify.sanitize(node.text.value),
+      yes: cleanNode(node.yes),
+      no: cleanNode(node.no),
+      parentId: node.parentId,
+    }
+  }
+
+  const cleanedTree: SerializedTree = {
+    title: DOMPurify.sanitize(tree.title.value),
+    node: cleanNode(tree.node)!,
+  }
+
+  return encodeURIComponent(JSON.stringify(cleanedTree))
 }
 
 export const deserializeDecisionTree = (data: string): DecisionTree | null => {
@@ -100,7 +103,10 @@ export const deserializeDecisionTree = (data: string): DecisionTree | null => {
       if (!node) return null
       return {
         id: node.id,
-        text: { value: node.text, isEditing: false },
+        text: {
+          value: DOMPurify.sanitize(node.text),
+          isEditing: false,
+        },
         yes: reconstructNode(node.yes),
         no: reconstructNode(node.no),
         parentId: node.parentId,
@@ -108,7 +114,10 @@ export const deserializeDecisionTree = (data: string): DecisionTree | null => {
     }
 
     return {
-      title: { value: parsed.title, isEditing: false },
+      title: {
+        value: DOMPurify.sanitize(parsed.title),
+        isEditing: false,
+      },
       node: reconstructNode(parsed.node)!,
     }
   } catch (e) {

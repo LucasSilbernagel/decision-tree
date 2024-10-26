@@ -6,6 +6,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { TREE_CONSTANTS } from '~/constants'
 import { TreeNodeTitle } from '../TreeNodeTitle/TreeNodeTitle'
 import { calculateTreeDimensions } from '~/lib/utils'
+import DOMPurify from 'dompurify'
 
 const TreeNode = ({
   node,
@@ -147,7 +148,7 @@ const TreeNode = ({
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateNode({
       ...node,
-      text: { ...node.text, value: e.target.value },
+      text: { ...node.text, value: DOMPurify.sanitize(e.target.value) },
     })
   }
 
@@ -173,7 +174,7 @@ const TreeNode = ({
       >
         <TreeNodeTitle
           id={node.id}
-          value={node.text.value}
+          value={DOMPurify.sanitize(node.text.value)}
           isEditing={node.text.isEditing}
           onChange={handleTextChange}
           onEditToggle={handleEditToggle}

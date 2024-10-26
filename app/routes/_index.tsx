@@ -14,6 +14,7 @@ import { useLoaderData, useNavigate } from '@remix-run/react'
 import { useToast } from '~/hooks/use-toast'
 import { Share2 } from 'lucide-react'
 import { DeleteTreeDialog } from '~/components/DeleteTreeDialog/DeleteTreeDialog'
+import DOMPurify from 'dompurify'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url)
@@ -98,7 +99,7 @@ export default function Index() {
       setDecisionTree({
         ...decisionTree,
         title: {
-          value: treeTitleDraft || 'Decision Tree Title',
+          value: DOMPurify.sanitize(treeTitleDraft) || 'Decision Tree Title',
           isEditing: !decisionTree.title.isEditing,
         },
       })
