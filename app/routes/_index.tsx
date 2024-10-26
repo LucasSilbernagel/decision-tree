@@ -289,23 +289,45 @@ export default function Index() {
               />
             </>
           ) : (
-            <div className="flex justify-center gap-4 mb-6">
-              <Button
-                onClick={() =>
-                  navigate(`?tree=${EXAMPLE_TREE}`, { replace: true })
-                }
-              >
-                View an example decision tree
-              </Button>
-              <Button onClick={createNewDecisionTree}>
-                Create a new decision tree
-              </Button>
+            <div className="min-h-[550px]">
+              <div className="flex justify-center gap-4 mb-6">
+                <Button
+                  onClick={() =>
+                    navigate(`?tree=${EXAMPLE_TREE}`, { replace: true })
+                  }
+                >
+                  View an example decision tree
+                </Button>
+                <Button onClick={createNewDecisionTree}>
+                  Create a new decision tree
+                </Button>
+              </div>
+              <div className="my-12">
+                <div className="flex justify-center mb-12 w-full">
+                  <div className="max-w-xs">
+                    <img src="/tree.webp" alt="" />
+                  </div>
+                </div>
+                <p className="text-xl">
+                  A simple generator of shareable decision trees.
+                </p>
+              </div>
             </div>
           )}
         </div>
       </main>
-      <footer className="mt-12">
-        <p>Footer</p>
+      <footer className="mt-12 pb-6">
+        <p>
+          Built by{' '}
+          <a
+            href="https://lucassilbernagel.com/"
+            target="_blank"
+            rel="noreferrer"
+            className="underline underline-offset-2 hover:underline-offset-1 focus-visible:underline-offset-1 transition-all duration-300"
+          >
+            Lucas Silbernagel
+          </a>
+        </p>
       </footer>
     </div>
   )
