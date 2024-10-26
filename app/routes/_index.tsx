@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '~/components/ui/button'
 import { DecisionTree, DecisionTreeNode, NodePosition } from '~/types'
-import { TREE_CONSTANTS } from '~/constants'
+import { EXAMPLE_TREE, TREE_CONSTANTS } from '~/constants'
 import { TreeTitle } from '~/components/TreeTitle/TreeTitle'
 import { TreeVisualization } from '~/components/TreeVisualization/TreeVisualization'
 import {
@@ -288,9 +288,18 @@ export default function Index() {
               />
             </>
           ) : (
-            <Button onClick={createNewDecisionTree}>
-              Create a new decision tree
-            </Button>
+            <div className="flex justify-center gap-4 mb-6">
+              <Button
+                onClick={() =>
+                  navigate(`?tree=${EXAMPLE_TREE}`, { replace: true })
+                }
+              >
+                View an example decision tree
+              </Button>
+              <Button onClick={createNewDecisionTree}>
+                Create a new decision tree
+              </Button>
+            </div>
           )}
         </div>
       </main>
