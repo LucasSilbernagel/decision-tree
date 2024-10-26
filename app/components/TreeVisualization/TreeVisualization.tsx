@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { DecisionTreeNode, NodePosition } from '~/types'
 import TreeNode from '~/components/TreeNode/TreeNode'
 import { BackToStartButton } from '../BackToStartButton/BackToStartButton'
@@ -96,6 +96,10 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
       }
     }
   }, [nodePositions, containerRef])
+
+  useEffect(() => {
+    scrollToRoot()
+  }, [scrollToRoot])
 
   const renderLines = () => {
     const lines: JSX.Element[] = []
