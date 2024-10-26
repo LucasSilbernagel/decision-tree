@@ -33,6 +33,12 @@ export const TreeTitle: React.FC<TreeTitleProps> = ({
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             onBlur={onTitleEdit}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                onTitleEdit()
+              }
+            }}
           />
         </>
       ) : (
