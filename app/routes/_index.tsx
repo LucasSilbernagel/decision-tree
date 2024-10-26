@@ -1,11 +1,22 @@
-import type { MetaFunction } from '@remix-run/node'
-import { useEffect, useRef, useState } from 'react'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '~/components/ui/button'
-import { DecisionTreeNode, NodePosition } from '~/types'
+import { DecisionTree, DecisionTreeNode, NodePosition } from '~/types'
 import { TREE_CONSTANTS } from '~/constants'
 import { TreeTitle } from '~/components/TreeTitle/TreeTitle'
 import { TreeVisualization } from '~/components/TreeVisualization/TreeVisualization'
-import { calculateTreeDimensions } from '~/lib/utils'
+import {
+  calculateTreeDimensions,
+  deserializeDecisionTree,
+  serializeDecisionTree,
+} from '~/lib/utils'
+import { useLoaderData, useNavigate } from '@remix-run/react'
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url)
+  const treeData = url.searchParams.get('tree')
+  return { treeData }
+}
 
 export const meta: MetaFunction = () => {
   return [
@@ -14,12 +25,9 @@ export const meta: MetaFunction = () => {
   ]
 }
 
-export type DecisionTree = {
-  title: { value: string; isEditing: boolean }
-  node: DecisionTreeNode
-}
-
 export default function Index() {
+  const { treeData } = useLoaderData<typeof loader>()
+  const navigate = useNavigate()
   const [decisionTree, setDecisionTree] = useState<DecisionTree | null>(null)
   const [treeWidth, setTreeWidth] = useState(0)
   const [treeHeight, setTreeHeight] = useState(0)
@@ -29,6 +37,9 @@ export default function Index() {
   )
   const [highestId, setHighestId] = useState(0)
   const treeContainerRef = useRef<HTMLDivElement>(null)
+
+  const lastSerializedState = useRef<string>('')
+  const updateTimeoutRef = useRef<NodeJS.Timeout>()
 
   const createNewDecisionTree = () => {
     const initialWidth = TREE_CONSTANTS.MIN_NODE_WIDTH * 3 // Space for root and two children
@@ -120,6 +131,67 @@ export default function Index() {
     setHighestId(yesId)
     return { noId, yesId }
   }
+
+  useEffect(() => {
+    if (treeData) {
+      const loadedTree = deserializeDecisionTree(treeData)
+      if (loadedTree) {
+        setDecisionTree(loadedTree)
+        lastSerializedState.current = treeData
+      }
+    }
+  }, [treeData])
+
+  // Debounced URL update when persistent state changes
+  const updateURL = useCallback(
+    (tree: DecisionTree) => {
+      const serializedTree = serializeDecisionTree(tree)
+
+      // Only update if the persistent state has changed
+      if (serializedTree !== lastSerializedState.current) {
+        lastSerializedState.current = serializedTree
+
+        // Clear any pending update
+        if (updateTimeoutRef.current) {
+          clearTimeout(updateTimeoutRef.current)
+        }
+
+        // Schedule new update
+        updateTimeoutRef.current = setTimeout(() => {
+          navigate(`?tree=${serializedTree}`, { replace: true })
+        }, 1000) // Delay URL update by 1 second
+      }
+    },
+    [navigate]
+  )
+
+  // Update URL when tree changes (but not during editing)
+  useEffect(() => {
+    // Helper to check if any nodes are being edited
+    const hasEditingNodes = (node: DecisionTreeNode): boolean => {
+      if (node.text.isEditing) return true
+      if (node.yes && hasEditingNodes(node.yes)) return true
+      if (node.no && hasEditingNodes(node.no)) return true
+      return false
+    }
+    if (decisionTree) {
+      const shouldUpdateURL =
+        !decisionTree.title.isEditing && !hasEditingNodes(decisionTree.node)
+
+      if (shouldUpdateURL) {
+        updateURL(decisionTree)
+      }
+    }
+  }, [decisionTree, updateURL])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (decisionTree) {

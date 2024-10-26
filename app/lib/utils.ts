@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { TREE_CONSTANTS } from '~/constants'
-import { DecisionTreeNode } from '~/routes/_index'
+import { DecisionTree, DecisionTreeNode } from '~/types'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -58,3 +58,61 @@ export const getInitialTree = (): DecisionTreeNode => ({
     parentId: 0,
   },
 })
+
+type SerializedNode = {
+  id: number
+  text: string
+  yes: SerializedNode | null
+  no: SerializedNode | null
+  parentId?: number
+}
+
+type SerializedTree = {
+  title: string
+  node: SerializedNode
+}
+
+const getPersistentTreeState = (tree: DecisionTree): SerializedTree => ({
+  title: tree.title.value,
+  node: getPersistentNodeState(tree.node),
+})
+
+const getPersistentNodeState = (node: DecisionTreeNode): SerializedNode => ({
+  id: node.id,
+  text: node.text.value,
+  yes: node.yes ? getPersistentNodeState(node.yes) : null,
+  no: node.no ? getPersistentNodeState(node.no) : null,
+  parentId: node.parentId,
+})
+
+export const serializeDecisionTree = (tree: DecisionTree): string => {
+  const persistentState = getPersistentTreeState(tree)
+  return encodeURIComponent(JSON.stringify(persistentState))
+}
+
+export const deserializeDecisionTree = (data: string): DecisionTree | null => {
+  try {
+    const parsed = JSON.parse(decodeURIComponent(data)) as SerializedTree
+
+    const reconstructNode = (
+      node: SerializedNode | null
+    ): DecisionTreeNode | null => {
+      if (!node) return null
+      return {
+        id: node.id,
+        text: { value: node.text, isEditing: false },
+        yes: reconstructNode(node.yes),
+        no: reconstructNode(node.no),
+        parentId: node.parentId,
+      }
+    }
+
+    return {
+      title: { value: parsed.title, isEditing: false },
+      node: reconstructNode(parsed.node)!,
+    }
+  } catch (e) {
+    console.error('Error deserializing tree:', e)
+    return null
+  }
+}
