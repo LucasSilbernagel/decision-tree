@@ -29,7 +29,7 @@ export const TreeTitle: React.FC<TreeTitleProps> = ({
             value={treeTitleDraft}
             placeholder="Decision Tree Title"
             onChange={(e) => onTitleDraftChange(e.target.value)}
-            className="mx-auto max-w-max text-4xl text-center"
+            className="mx-auto max-w-max text-3xl text-center"
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             onBlur={onTitleEdit}
@@ -47,7 +47,7 @@ export const TreeTitle: React.FC<TreeTitleProps> = ({
           onClick={onTitleEdit}
           className="relative text-center transition-all duration-300 cursor-text group"
         >
-          <span className="text-4xl">{title.value}</span>
+          <span className="text-3xl">{title.value}</span>
           <span className="-right-6 absolute opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60">
             <Pencil />
           </span>

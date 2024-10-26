@@ -11,6 +11,9 @@ import {
   serializeDecisionTree,
 } from '~/lib/utils'
 import { useLoaderData, useNavigate } from '@remix-run/react'
+import { useToast } from '~/hooks/use-toast'
+import { Share2 } from 'lucide-react'
+import { DeleteTreeDialog } from '~/components/DeleteTreeDialog/DeleteTreeDialog'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url)
@@ -41,11 +44,13 @@ export default function Index() {
   const lastSerializedState = useRef<string>('')
   const updateTimeoutRef = useRef<NodeJS.Timeout>()
 
-  const createNewDecisionTree = () => {
-    const initialWidth = TREE_CONSTANTS.MIN_NODE_WIDTH * 3 // Space for root and two children
-    const initialHeight = TREE_CONSTANTS.VERTICAL_SPACING * 2 // Space for two levels
+  const { toast } = useToast()
 
-    setDecisionTree({
+  const createNewDecisionTree = () => {
+    const initialWidth = TREE_CONSTANTS.MIN_NODE_WIDTH * 3
+    const initialHeight = TREE_CONSTANTS.VERTICAL_SPACING * 2
+
+    const newTree = {
       title: { value: 'Decision Tree Title', isEditing: false },
       node: {
         id: 0,
@@ -65,10 +70,16 @@ export default function Index() {
           parentId: 0,
         },
       },
-    })
+    }
 
+    setDecisionTree(newTree)
     setTreeWidth(initialWidth)
     setTreeHeight(initialHeight)
+
+    // Immediately update URL with the new tree
+    const serializedTree = serializeDecisionTree(newTree)
+    lastSerializedState.current = serializedTree
+    navigate(`?tree=${serializedTree}`, { replace: true })
   }
 
   const updateTree = (newNode: DecisionTreeNode) => {
@@ -130,6 +141,21 @@ export default function Index() {
     const yesId = noId + 1
     setHighestId(yesId)
     return { noId, yesId }
+  }
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      toast({ title: `URL copied to clipboard!` })
+    } catch (err) {
+      toast({ title: `Failed to copy URL`, variant: 'destructive' })
+      console.error('Failed to copy URL:', err)
+    }
+  }
+
+  const handleReset = () => {
+    setDecisionTree(null)
+    navigate('/', { replace: true })
   }
 
   useEffect(() => {
@@ -225,7 +251,7 @@ export default function Index() {
   }, [treeWidth])
 
   return (
-    <div className="mx-auto pt-12 text-center">
+    <div className="mx-auto pt-6 text-center">
       <header>
         <h1 className="sr-only">Decision Tree</h1>
       </header>
@@ -233,6 +259,16 @@ export default function Index() {
         <div>
           {decisionTree ? (
             <>
+              <div className="flex justify-center gap-4 mb-6">
+                <Button
+                  onClick={handleShare}
+                  className="flex items-center gap-2"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Share Tree
+                </Button>
+                <DeleteTreeDialog handleReset={handleReset} />
+              </div>
               <TreeTitle
                 title={decisionTree.title}
                 treeTitleDraft={treeTitleDraft}
