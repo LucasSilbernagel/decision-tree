@@ -99,7 +99,8 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
 
   useEffect(() => {
     scrollToRoot()
-  }, [scrollToRoot])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const renderLines = () => {
     const lines: JSX.Element[] = []
