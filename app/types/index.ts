@@ -1,6 +1,7 @@
 export type NodePosition = {
   x: number
   y: number
+  type: 'yes' | 'no' | 'root'
 }
 
 export type DecisionTreeNode = {

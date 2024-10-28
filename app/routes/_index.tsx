@@ -108,22 +108,43 @@ export default function Index() {
 
   const deleteNode = (nodeId: number) => {
     if (decisionTree) {
+      const deletedIds: number[] = []
+
       const deleteNodeRecursive = (
         node: DecisionTreeNode | null
       ): DecisionTreeNode | null => {
         if (!node) return null
-        if (node.id === nodeId) return null
+        if (node.id === nodeId) {
+          // Add this node and all its children to deletedIds
+          const collectNodeIds = (n: DecisionTreeNode) => {
+            deletedIds.push(n.id)
+            if (n.yes) collectNodeIds(n.yes)
+            if (n.no) collectNodeIds(n.no)
+          }
+          collectNodeIds(node)
+          return null
+        }
         return {
           ...node,
           yes: deleteNodeRecursive(node.yes),
           no: deleteNodeRecursive(node.no),
         }
       }
+
       const updatedTree = deleteNodeRecursive(decisionTree.node)
       if (updatedTree) {
         setDecisionTree({
           ...decisionTree,
           node: updatedTree,
+        })
+
+        // Remove all deleted node positions
+        setNodePositions((prevPositions) => {
+          const newPositions = new Map(prevPositions)
+          deletedIds.forEach((id) => {
+            newPositions.delete(id)
+          })
+          return newPositions
         })
       }
     }

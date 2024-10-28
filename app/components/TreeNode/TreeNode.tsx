@@ -54,7 +54,15 @@ const TreeNode = ({
       if (currentNode && currentContainer) {
         const nodeRect = currentNode.getBoundingClientRect()
         const containerRect = currentContainer.getBoundingClientRect()
-        const newPosition = {
+
+        // Get the parent container to determine node type
+        const parentContainer = currentNode.closest('[data-node-type]')
+        const nodeType = parentContainer?.getAttribute('data-node-type') as
+          | 'yes'
+          | 'no'
+          | undefined
+
+        const newPosition: NodePosition = {
           x:
             nodeRect.left -
             containerRect.left +
@@ -65,6 +73,7 @@ const TreeNode = ({
             containerRect.top +
             nodeRect.height / 2 +
             currentContainer.scrollTop,
+          type: nodeType || 'root',
         }
 
         const hasChanged =
@@ -208,11 +217,14 @@ const TreeNode = ({
 
       {node.no && (
         <div
-          className="left-0 absolute"
+          className="absolute"
           style={{
             top: `${VERTICAL_SPACING}px`,
             width: `${noWidth}px`,
+            left: 0,
+            transform: 'translateX(0)',
           }}
+          data-node-type="no"
         >
           <TreeNode
             node={node.no}
@@ -229,11 +241,14 @@ const TreeNode = ({
 
       {node.yes && (
         <div
-          className="right-0 absolute"
+          className="absolute"
           style={{
             top: `${VERTICAL_SPACING}px`,
             width: `${yesWidth}px`,
+            right: 0,
+            transform: 'translateX(0)',
           }}
+          data-node-type="yes"
         >
           <TreeNode
             node={node.yes}

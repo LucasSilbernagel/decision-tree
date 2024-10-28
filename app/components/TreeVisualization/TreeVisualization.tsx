@@ -151,8 +151,8 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
             </g>
           )
           lines.push(elements)
+          renderLinesRecursive(node.yes)
         }
-        renderLinesRecursive(node.yes)
       }
 
       if (node.no) {
@@ -195,8 +195,8 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
             </g>
           )
           lines.push(elements)
+          renderLinesRecursive(node.no)
         }
-        renderLinesRecursive(node.no)
       }
     }
 
