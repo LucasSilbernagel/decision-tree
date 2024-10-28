@@ -15,6 +15,7 @@ import { useToast } from '~/hooks/use-toast'
 import { Share2 } from 'lucide-react'
 import { DeleteTreeDialog } from '~/components/DeleteTreeDialog/DeleteTreeDialog'
 import DOMPurify from 'dompurify'
+import Footer from '~/components/Footer/Footer'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url)
@@ -325,7 +326,7 @@ export default function Index() {
               </div>
               <div className="my-12">
                 <div className="flex justify-center mb-12 w-full">
-                  <div className="max-w-xs">
+                  <div className="max-w-[200px]">
                     <img src="/tree.webp" alt="" />
                   </div>
                 </div>
@@ -337,19 +338,7 @@ export default function Index() {
           )}
         </div>
       </main>
-      <footer className="mt-12 pb-6">
-        <p>
-          Built by{' '}
-          <a
-            href="https://lucassilbernagel.com/"
-            target="_blank"
-            rel="noreferrer"
-            className="underline underline-offset-2 hover:underline-offset-1 focus-visible:underline-offset-1 transition-all duration-300"
-          >
-            Lucas Silbernagel
-          </a>
-        </p>
-      </footer>
+      <Footer />
     </div>
   )
 }
