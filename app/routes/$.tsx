@@ -7,6 +7,10 @@ export const meta: MetaFunction = () => {
   return [
     { title: 'Decision Tree | 404' },
     { name: 'description', content: 'A simple decision tree generator.' },
+    {
+      property: 'og:image',
+      content: '/decision-tree.png',
+    },
   ]
 }
 
