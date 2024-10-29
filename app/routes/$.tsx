@@ -6,7 +6,10 @@ import Footer from '~/components/Footer/Footer'
 export const meta: MetaFunction = () => {
   return [
     { title: 'Decision Tree | 404' },
-    { name: 'description', content: 'A simple decision tree generator.' },
+    {
+      name: 'description',
+      content: 'A simple generator of shareable decision trees.',
+    },
     {
       property: 'og:image',
       content: '/decision-tree.png',

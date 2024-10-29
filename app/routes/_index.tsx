@@ -26,7 +26,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export const meta: MetaFunction = () => {
   return [
     { title: 'Decision Tree' },
-    { name: 'description', content: 'A simple decision tree generator.' },
+    {
+      name: 'description',
+      content: 'A simple generator of shareable decision trees.',
+    },
     {
       property: 'og:image',
       content: '/decision-tree.png',
