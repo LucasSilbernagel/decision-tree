@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { DecisionTreeNode, NodePosition } from '~/types'
 import TreeNode from '~/components/TreeNode/TreeNode'
 import { BackToStartButton } from '../BackToStartButton/BackToStartButton'
@@ -98,10 +98,28 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
     }
   }, [nodePositions, containerRef])
 
+  const initialScrollDone = useRef(false)
+
   useEffect(() => {
-    scrollToRoot()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    const rootPos = nodePositions.get(0)
+
+    // Only scroll if we haven't scrolled yet AND we have the root position
+    if (!initialScrollDone.current && rootPos) {
+      const timer = setTimeout(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollTo({
+            left: rootPos.x - containerRef.current.clientWidth / 2,
+            top: 0,
+            behavior: 'smooth',
+          })
+          window?.scrollTo(0, 0)
+          initialScrollDone.current = true
+        }
+      }, 100)
+
+      return () => clearTimeout(timer)
+    }
+  }, [nodePositions, containerRef])
 
   const renderLines = () => {
     const lines: JSX.Element[] = []
