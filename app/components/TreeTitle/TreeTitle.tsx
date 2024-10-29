@@ -18,7 +18,7 @@ export const TreeTitle: React.FC<TreeTitleProps> = ({
   onTitleDraftChange,
   onTitleEdit,
 }) => (
-  <div className="mt-4 mb-6">
+  <div className="mt-4 mb-6 px-4 sm:px-0">
     <div>
       {title.isEditing ? (
         <>
@@ -46,7 +46,7 @@ export const TreeTitle: React.FC<TreeTitleProps> = ({
         <Button
           variant="ghost"
           onClick={onTitleEdit}
-          className="relative text-center transition-all duration-300 cursor-text group"
+          className="relative text-center text-wrap transition-all duration-300 cursor-text group"
         >
           <span className="text-3xl">{title.value}</span>
           <span className="-right-6 absolute opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60">

@@ -312,7 +312,7 @@ export default function Index() {
             </>
           ) : (
             <div className="min-h-[550px]">
-              <div className="flex justify-center gap-4 mb-6">
+              <div className="flex sm:flex-row flex-col justify-center gap-4 mb-6 px-4 sm:px-0">
                 <Button
                   onClick={() =>
                     navigate(`?tree=${EXAMPLE_TREE}`, { replace: true })
