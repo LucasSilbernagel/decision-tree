@@ -1,9 +1,10 @@
 import { useNavigate } from '@remix-run/react'
 import { Button } from '../ui/button'
-import { SERIALIZED_EXAMPLE_TREE, TREE_CONSTANTS } from '~/constants'
+import { NEW_TREE, SERIALIZED_EXAMPLE_TREE, TREE_CONSTANTS } from '~/constants'
 import { DecisionTree } from '~/types'
 import { Dispatch, MutableRefObject, SetStateAction } from 'react'
 import { serializeDecisionTree } from '~/utils'
+import { Plus, Eye } from 'lucide-react'
 
 type EmptyTreeProps = {
   setDecisionTree: (tree: DecisionTree | null) => void
@@ -24,34 +25,12 @@ const EmptyTree = ({
     const initialWidth = TREE_CONSTANTS.MIN_NODE_WIDTH * 3
     const initialHeight = TREE_CONSTANTS.VERTICAL_SPACING * 2
 
-    const newTree = {
-      title: { value: 'Decision Tree Title', isEditing: false },
-      node: {
-        id: 0,
-        text: { value: 'Yes or no?', isEditing: false },
-        yes: {
-          id: 1,
-          text: { value: 'Yes', isEditing: false },
-          yes: null,
-          no: null,
-          parentId: 0,
-        },
-        no: {
-          id: 2,
-          text: { value: 'No', isEditing: false },
-          yes: null,
-          no: null,
-          parentId: 0,
-        },
-      },
-    }
-
-    setDecisionTree(newTree)
+    setDecisionTree(NEW_TREE)
     setTreeWidth(initialWidth)
     setTreeHeight(initialHeight)
 
-    // Immediately update URL with the new tree
-    const serializedTree = serializeDecisionTree(newTree)
+    // Immediately update URL with the new tree data
+    const serializedTree = serializeDecisionTree(NEW_TREE)
     lastSerializedState.current = serializedTree
     navigate(`?tree=${serializedTree}`, { replace: true })
   }
@@ -64,10 +43,10 @@ const EmptyTree = ({
             navigate(`?tree=${SERIALIZED_EXAMPLE_TREE}`, { replace: true })
           }
         >
-          View an example decision tree
+          <Eye className="mr-1.5 w-4 h-4" /> Example
         </Button>
         <Button onClick={createNewDecisionTree}>
-          Create a new decision tree
+          <Plus className="mr-1.5 w-4 h-4" /> New
         </Button>
       </div>
       <div className="my-12">

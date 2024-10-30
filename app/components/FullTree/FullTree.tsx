@@ -142,7 +142,7 @@ const FullTree = ({
     <>
       <div className="flex justify-center gap-4 mb-6">
         <Button onClick={handleShare} className="flex items-center gap-2">
-          <Share2 className="w-4 h-4" />
+          <Share2 className="mr-1.5 w-4 h-4" />
           Share Tree
         </Button>
         <DeleteTreeDialog handleReset={handleReset} />

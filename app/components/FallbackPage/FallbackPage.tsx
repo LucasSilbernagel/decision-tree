@@ -20,7 +20,7 @@ const FallbackPage = () => {
             to="/"
             className="flex items-center gap-2 px-4 py-2 w-full font-bold text-2xl text-center underline underline-offset-2 hover:underline-offset-1 focus-visible:underline-offset-1 transition-all duration-300"
           >
-            <ArrowLeft /> <span>Home</span>
+            <ArrowLeft className="mr-1.5 w-4 h-4" /> <span>Home</span>
           </Link>
         </div>
       </main>

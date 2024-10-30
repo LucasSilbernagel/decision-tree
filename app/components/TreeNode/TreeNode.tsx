@@ -8,6 +8,18 @@ import { TreeNodeTitle } from '../TreeNodeTitle/TreeNodeTitle'
 import DOMPurify from 'dompurify'
 import { calculateTreeDimensions } from '~/utils'
 
+type TreeNodeProps = {
+  node: DecisionTreeNode
+  updateNode: (newNode: DecisionTreeNode) => void
+  deleteNode: (nodeId: number) => void
+  depth: number
+  xOffset: number
+  onPositionUpdate: (id: number, position: NodePosition) => void
+  getNewIds: () => { noId: number; yesId: number }
+  containerRef: React.RefObject<HTMLDivElement>
+  onRootVisibilityChange?: (isVisible: boolean) => void
+}
+
 const TreeNode = ({
   node,
   updateNode,
@@ -18,19 +30,10 @@ const TreeNode = ({
   getNewIds,
   containerRef,
   onRootVisibilityChange,
-}: {
-  node: DecisionTreeNode
-  updateNode: (newNode: DecisionTreeNode) => void
-  deleteNode: (nodeId: number) => void
-  depth: number
-  xOffset: number
-  onPositionUpdate: (id: number, position: NodePosition) => void
-  getNewIds: () => { noId: number; yesId: number }
-  containerRef: React.RefObject<HTMLDivElement>
-  onRootVisibilityChange?: (isVisible: boolean) => void
-}) => {
+}: TreeNodeProps) => {
   const nodeRef = useRef<HTMLDivElement>(null)
   const prevPositionRef = useRef<NodePosition | null>(null)
+
   const { VERTICAL_SPACING, MAX_DEPTH } = TREE_CONSTANTS
 
   // Calculate dimensions for current subtree
