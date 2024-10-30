@@ -1,9 +1,9 @@
 import { useNavigate } from '@remix-run/react'
 import { Button } from '../ui/button'
-import { EXAMPLE_TREE, TREE_CONSTANTS } from '~/constants'
+import { SERIALIZED_EXAMPLE_TREE, TREE_CONSTANTS } from '~/constants'
 import { DecisionTree } from '~/types'
 import { Dispatch, MutableRefObject, SetStateAction } from 'react'
-import { serializeDecisionTree } from '~/lib/utils'
+import { serializeDecisionTree } from '~/utils'
 
 type EmptyTreeProps = {
   setDecisionTree: (tree: DecisionTree | null) => void
@@ -60,7 +60,9 @@ const EmptyTree = ({
     <div className="min-h-[550px]">
       <div className="flex sm:flex-row flex-col justify-center gap-4 mb-6 px-4 sm:px-0">
         <Button
-          onClick={() => navigate(`?tree=${EXAMPLE_TREE}`, { replace: true })}
+          onClick={() =>
+            navigate(`?tree=${SERIALIZED_EXAMPLE_TREE}`, { replace: true })
+          }
         >
           View an example decision tree
         </Button>

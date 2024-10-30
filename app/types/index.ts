@@ -22,3 +22,16 @@ export type DecisionTree = {
   }
   node: DecisionTreeNode
 }
+
+export type SerializedNode = {
+  id: number
+  text: string
+  yes: SerializedNode | null
+  no: SerializedNode | null
+  parentId?: number
+}
+
+export type SerializedTree = {
+  title: string
+  node: SerializedNode
+}

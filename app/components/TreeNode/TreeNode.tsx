@@ -5,8 +5,8 @@ import { Button } from '../ui/button'
 import { Plus, Trash2 } from 'lucide-react'
 import { TREE_CONSTANTS } from '~/constants'
 import { TreeNodeTitle } from '../TreeNodeTitle/TreeNodeTitle'
-import { calculateTreeDimensions } from '~/lib/utils'
 import DOMPurify from 'dompurify'
+import { calculateTreeDimensions } from '~/utils'
 
 const TreeNode = ({
   node,

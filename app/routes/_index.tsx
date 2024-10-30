@@ -1,15 +1,15 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { DecisionTree, DecisionTreeNode, NodePosition } from '~/types'
-import {
-  calculateTreeDimensions,
-  deserializeDecisionTree,
-  serializeDecisionTree,
-} from '~/lib/utils'
 import { useLoaderData, useNavigate } from '@remix-run/react'
 import Footer from '~/components/Footer/Footer'
 import EmptyTree from '~/components/EmptyTree/EmptyTree'
 import FullTree from '~/components/FullTree/FullTree'
+import {
+  calculateTreeDimensions,
+  deserializeDecisionTree,
+  serializeDecisionTree,
+} from '~/utils'
 
 export const meta: MetaFunction = () => {
   return [
