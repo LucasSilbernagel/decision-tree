@@ -3,7 +3,7 @@ import { DecisionTreeNode, NodePosition } from '~/types'
 import TreeNode from '~/components/TreeNode/TreeNode'
 import { BackToStartButton } from '../BackToStartButton/BackToStartButton'
 
-interface TreeVisualizationProps {
+type TreeVisualizationProps = {
   node: DecisionTreeNode
   treeHeight: number
   treeWidth: number
