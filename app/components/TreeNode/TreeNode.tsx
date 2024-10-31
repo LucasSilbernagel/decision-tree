@@ -6,7 +6,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { TREE_CONSTANTS } from '~/constants'
 import { TreeNodeTitle } from '../TreeNodeTitle/TreeNodeTitle'
 import DOMPurify from 'dompurify'
-import { calculateTreeDimensions } from '~/utils'
+import { calculateTreeDimensions, getPathDescription } from '~/utils'
 
 type TreeNodeProps = {
   node: DecisionTreeNode
@@ -49,36 +49,12 @@ const TreeNode = ({
   const maxNodesReached = depth >= MAX_DEPTH
   const hasChildren = node.yes !== null || node.no !== null
 
-  // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    let parentNode: HTMLElement | null = null
-    let firstChild: HTMLElement | null = null
-
     switch (e.key) {
       case 'Enter':
       case ' ':
         if (!maxNodesReached && !hasChildren) {
           handleAddChildren()
-        }
-        break
-      case 'ArrowDown':
-        if (hasChildren) {
-          firstChild = nodeRef.current?.parentElement?.querySelector(
-            '[role="treeitem"]'
-          ) as HTMLElement
-          if (firstChild) {
-            firstChild.focus()
-            e.preventDefault()
-          }
-        }
-        break
-      case 'ArrowUp':
-        parentNode = nodeRef.current
-          ?.closest('[data-node-type]')
-          ?.parentElement?.closest('[role="treeitem"]') as HTMLElement
-        if (parentNode) {
-          parentNode.focus()
-          e.preventDefault()
         }
         break
     }
@@ -206,6 +182,15 @@ const TreeNode = ({
     })
   }
 
+  const getNodeAriaLabel = () => {
+    const nodeType = depth === 0 ? 'root' : ''
+    const pathDesc = depth === 0 ? '' : getPathDescription(nodeRef)
+    const childrenHint = hasChildren
+      ? '. Continue navigating to explore children'
+      : ''
+    return `Decision ${nodeType}: ${node.text.value}${pathDesc}${childrenHint}`
+  }
+
   return (
     <div
       className="relative"
@@ -224,7 +209,8 @@ const TreeNode = ({
         aria-level={depth + 1}
         tabIndex={0}
         onKeyDown={handleKeyDown}
-        aria-label={`Decision ${depth === 0 ? 'root' : ''}: ${node.text.value}${hasChildren ? '. Continue navigating to explore children' : ''}`}
+        data-node-text={node.text.value}
+        aria-label={getNodeAriaLabel()}
       >
         <TreeNodeTitle
           id={node.id}

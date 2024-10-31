@@ -96,3 +96,35 @@ export const deserializeDecisionTree = (data: string): DecisionTree | null => {
     return null
   }
 }
+
+export const getPathDescription = (
+  nodeRef: React.RefObject<HTMLDivElement>
+): string => {
+  const path: string[] = []
+
+  let currentContainer = nodeRef.current?.closest('[data-node-type]')
+
+  while (currentContainer) {
+    const branchType = currentContainer.getAttribute('data-node-type')
+
+    if (branchType) {
+      const parentTreeItem =
+        currentContainer.parentElement?.parentElement?.querySelector(
+          '[role="treeitem"]'
+        )
+
+      if (parentTreeItem) {
+        const parentText = parentTreeItem.getAttribute('data-node-text')
+        if (parentText) {
+          // Format each step as "decision - response"
+          path.unshift(`${parentText} - ${branchType}`)
+        }
+      }
+    }
+
+    currentContainer =
+      currentContainer.parentElement?.closest('[data-node-type]')
+  }
+
+  return path.length > 0 ? ` - From: ${path.join(' - ')}` : ''
+}
