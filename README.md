@@ -1,3 +1,6 @@
+
+![decision-tree](https://github.com/user-attachments/assets/382e033c-e29b-49c1-b80b-ec7442f14b0e)
+
 # Welcome to Remix!
 
 - 📖 [Remix docs](https://remix.run/docs)
