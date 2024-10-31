@@ -55,9 +55,9 @@ const EmptyTree = ({
             <img src="/tree.webp" alt="" />
           </div>
         </div>
-        <p className="text-xl">
+        <h2 className="text-xl">
           A simple generator of shareable decision trees.
-        </p>
+        </h2>
       </div>
     </div>
   )
