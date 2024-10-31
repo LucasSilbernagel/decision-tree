@@ -46,8 +46,43 @@ const TreeNode = ({
   const yesWidth = node.yes
     ? calculateTreeDimensions(node.yes, depth + 1).width
     : 0
-
   const maxNodesReached = depth >= MAX_DEPTH
+  const hasChildren = node.yes !== null || node.no !== null
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    let parentNode: HTMLElement | null = null
+    let firstChild: HTMLElement | null = null
+
+    switch (e.key) {
+      case 'Enter':
+      case ' ':
+        if (!maxNodesReached && !hasChildren) {
+          handleAddChildren()
+        }
+        break
+      case 'ArrowDown':
+        if (hasChildren) {
+          firstChild = nodeRef.current?.parentElement?.querySelector(
+            '[role="treeitem"]'
+          ) as HTMLElement
+          if (firstChild) {
+            firstChild.focus()
+            e.preventDefault()
+          }
+        }
+        break
+      case 'ArrowUp':
+        parentNode = nodeRef.current
+          ?.closest('[data-node-type]')
+          ?.parentElement?.closest('[role="treeitem"]') as HTMLElement
+        if (parentNode) {
+          parentNode.focus()
+          e.preventDefault()
+        }
+        break
+    }
+  }
 
   useEffect(() => {
     const currentContainer = containerRef.current
@@ -178,11 +213,18 @@ const TreeNode = ({
         width: `${width}px`,
         minHeight: `${VERTICAL_SPACING}px`,
       }}
+      role="presentation"
     >
       <Card
         ref={nodeRef}
-        className="left-1/2 z-10 absolute flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm p-0 border rounded-lg w-[300px] transform -translate-x-1/2 overflow-hidden"
+        className="left-1/2 z-10 absolute flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm p-0 border rounded-lg focus-within:ring-2 focus-within:ring-blue-500 w-[300px] transform -translate-x-1/2 overflow-hidden"
         style={{ top: `${depth * VERTICAL_SPACING}px` }}
+        role="treeitem"
+        aria-expanded={hasChildren}
+        aria-level={depth + 1}
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
+        aria-label={`Decision ${depth === 0 ? 'root' : ''}: ${node.text.value}${hasChildren ? '. Continue navigating to explore children' : ''}`}
       >
         <TreeNodeTitle
           id={node.id}
@@ -191,7 +233,11 @@ const TreeNode = ({
           onChange={handleTextChange}
           onEditToggle={handleEditToggle}
         />
-        <div className="flex justify-between p-2 border-t w-full">
+        <div
+          className="flex justify-between p-2 border-t w-full"
+          role="group"
+          aria-label="Node actions"
+        >
           <Button
             variant="ghost"
             size="icon"
@@ -200,7 +246,7 @@ const TreeNode = ({
             className={node.id < 3 ? 'invisible' : ''}
             aria-label="Delete node"
           >
-            <Trash2 />
+            <Trash2 aria-hidden="true" />
           </Button>
           <Button
             variant="ghost"
@@ -213,9 +259,9 @@ const TreeNode = ({
                 ? 'invisible'
                 : ''
             }
-            aria-label="Add nodes"
+            aria-label="Add yes/no children nodes"
           >
-            <Plus />
+            <Plus aria-hidden="true" />
           </Button>
         </div>
       </Card>
@@ -230,6 +276,8 @@ const TreeNode = ({
             transform: 'translateX(0)',
           }}
           data-node-type="no"
+          role="group"
+          aria-label="No branch"
         >
           <TreeNode
             node={node.no}
@@ -254,6 +302,8 @@ const TreeNode = ({
             transform: 'translateX(0)',
           }}
           data-node-type="yes"
+          role="group"
+          aria-label="Yes branch"
         >
           <TreeNode
             node={node.yes}

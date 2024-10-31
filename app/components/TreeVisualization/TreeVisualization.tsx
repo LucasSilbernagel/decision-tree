@@ -37,6 +37,8 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
     typeof window !== 'undefined' ? window.innerHeight : 800
   const containerHeight = Math.max(viewportHeight - 200, treeHeight)
 
+  const treeContentRef = useRef<HTMLDivElement>(null)
+
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       if (
@@ -138,7 +140,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
           const midY = (parentPos.y + 40 + yesPos.y - 40) / 2
 
           const elements = (
-            <g key={`${node.id}-${node.yes.id}-yes-group`}>
+            <g key={`${node.id}-${node.yes.id}-yes-group`} role="presentation">
               <line
                 x1={parentPos.x}
                 y1={parentPos.y + 40}
@@ -147,6 +149,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
                 stroke="green"
                 strokeWidth="3"
                 strokeDasharray="10,5"
+                aria-hidden="true"
               />
               <circle
                 cx={midX}
@@ -155,6 +158,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
                 fill="white"
                 stroke="black"
                 strokeWidth="1"
+                aria-hidden="true"
               />
               <text
                 x={midX}
@@ -164,6 +168,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
                 fontSize="16"
                 fill="black"
                 fontWeight="bold"
+                aria-hidden="true"
               >
                 Yes
               </text>
@@ -182,7 +187,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
           const midY = (parentPos.y + 40 + noPos.y - 40) / 2
 
           const elements = (
-            <g key={`${node.id}-${node.no.id}-no-group`}>
+            <g key={`${node.id}-${node.no.id}-no-group`} role="presentation">
               <line
                 x1={parentPos.x}
                 y1={parentPos.y + 40}
@@ -191,6 +196,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
                 stroke="red"
                 strokeWidth="3"
                 strokeDasharray="10,5,2,5"
+                aria-hidden="true"
               />
               <circle
                 cx={midX}
@@ -199,6 +205,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
                 fill="white"
                 stroke="black"
                 strokeWidth="1"
+                aria-hidden="true"
               />
               <text
                 x={midX}
@@ -208,6 +215,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
                 fontSize="16"
                 fill="black"
                 fontWeight="bold"
+                aria-hidden="true"
               >
                 No
               </text>
@@ -224,10 +232,14 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
   }
 
   return (
-    <>
-      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+    <div role="application" aria-label="Decision Tree Visualization">
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
-        className="relative w-full overflow-auto select-none"
+        role="region"
+        aria-label="Decision tree navigation area"
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+        tabIndex={0}
+        className="relative w-full overflow-auto select-none focus:outline-none focus:ring-2 focus:ring-blue-500"
         style={{
           height: `${containerHeight}px`,
           cursor: isDragging ? 'grabbing' : 'grab',
@@ -247,6 +259,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
             minWidth: `${treeWidth * 1.1}px`,
             pointerEvents: 'none',
           }}
+          aria-hidden="true"
         >
           <svg
             width="100%"
@@ -254,6 +267,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
             style={{
               pointerEvents: 'none',
             }}
+            role="presentation"
           >
             <defs>
               <pattern
@@ -270,11 +284,14 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
           </svg>
         </div>
         <div
+          ref={treeContentRef}
           className="relative px-4 md:px-12 min-w-full"
           style={{
             pointerEvents: 'none',
             minHeight: `${Math.max(treeHeight * 2, containerHeight)}px`,
           }}
+          role="tree"
+          aria-label="Decision tree structure"
         >
           <div style={{ pointerEvents: 'all' }}>
             <TreeNode
@@ -292,6 +309,6 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
         </div>
       </div>
       {!isRootVisible && <BackToStartButton onClick={scrollToRoot} />}
-    </>
+    </div>
   )
 }
