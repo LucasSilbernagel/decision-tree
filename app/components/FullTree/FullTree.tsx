@@ -140,7 +140,7 @@ const FullTree = ({
 
   return (
     <>
-      <div className="flex justify-center gap-4 mb-6">
+      <div className="flex justify-center gap-4 mt-1 mb-6">
         <Button onClick={handleShare} className="flex items-center gap-2">
           <Share2 className="mr-1.5 w-4 h-4" />
           Share Tree

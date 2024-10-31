@@ -49,7 +49,7 @@ export const TreeTitle: React.FC<TreeTitleProps> = ({
           className="relative text-center text-wrap transition-all duration-300 cursor-text group"
         >
           <span className="text-3xl">{title.value}</span>
-          <span className="-right-6 absolute opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60">
+          <span className="-right-8 absolute opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60">
             <Pencil />
           </span>
         </Button>
