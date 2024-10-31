@@ -21,7 +21,7 @@ export const TreeNodeTitle: React.FC<TreeNodeTitleProps> = ({
 }) => (
   <div className="w-full">
     <Label htmlFor={`condition-${id}`} className="sr-only">
-      Condition {id}
+      Condition {id + 1}
     </Label>
     {isEditing ? (
       <Textarea
