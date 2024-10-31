@@ -47,6 +47,7 @@ export const TreeTitle: React.FC<TreeTitleProps> = ({
           variant="ghost"
           onClick={onTitleEdit}
           className="relative text-center text-wrap transition-all duration-300 cursor-text group"
+          aria-label={`${title.value} - edit`}
         >
           <span className="text-3xl">{title.value}</span>
           <span className="-right-8 absolute opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60">
