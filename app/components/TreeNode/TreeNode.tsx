@@ -198,6 +198,7 @@ const TreeNode = ({
             onClick={handleDelete}
             disabled={depth === 0}
             className={node.id < 3 ? 'invisible' : ''}
+            aria-label="Delete node"
           >
             <Trash2 />
           </Button>
@@ -212,6 +213,7 @@ const TreeNode = ({
                 ? 'invisible'
                 : ''
             }
+            aria-label="Add nodes"
           >
             <Plus />
           </Button>
