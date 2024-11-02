@@ -200,14 +200,11 @@ const TreeNode = ({
         width: `${width}px`,
         minHeight: `${VERTICAL_SPACING}px`,
       }}
-      role="presentation"
     >
       <Card
         ref={nodeRef}
         className="left-1/2 z-10 absolute flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm p-0 border rounded-lg focus-within:ring-2 focus-within:ring-blue-500 w-[300px] transform -translate-x-1/2 overflow-hidden"
         style={{ top: `${depth * VERTICAL_SPACING}px` }}
-        role="treeitem"
-        aria-expanded={hasChildren}
         aria-level={depth + 1}
         onKeyDown={handleKeyDown}
         data-node-text={node.text.value}

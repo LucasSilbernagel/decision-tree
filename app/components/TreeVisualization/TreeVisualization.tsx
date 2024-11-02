@@ -290,7 +290,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
             pointerEvents: 'none',
             minHeight: `${Math.max(treeHeight * 2, containerHeight)}px`,
           }}
-          role="tree"
+          // role="tree"
         >
           <div style={{ pointerEvents: 'all' }}>
             <TreeNode
