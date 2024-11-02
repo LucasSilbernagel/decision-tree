@@ -209,7 +209,6 @@ const TreeNode = ({
         role="treeitem"
         aria-expanded={hasChildren}
         aria-level={depth + 1}
-        tabIndex={0}
         onKeyDown={handleKeyDown}
         data-node-text={node.text.value}
         aria-label={getNodeAriaLabel()}
