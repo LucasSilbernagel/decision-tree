@@ -52,7 +52,7 @@ const TreeNode = ({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
       case 'Enter':
-      case ' ':
+      case '  ':
         if (!maxNodesReached && !hasChildren) {
           handleAddChildren()
         }
@@ -147,6 +147,10 @@ const TreeNode = ({
 
     const newNode = {
       ...node,
+      text: {
+        value: node.text.value,
+        isEditing: false,
+      },
       yes: {
         id: yesId,
         text: { value: 'Yes', isEditing: false },
@@ -185,9 +189,7 @@ const TreeNode = ({
   const getNodeAriaLabel = () => {
     const nodeType = depth === 0 ? 'root' : ''
     const pathDesc = depth === 0 ? '' : getPathDescription(nodeRef)
-    const childrenHint = hasChildren
-      ? '. Continue navigating to explore children'
-      : ''
+    const childrenHint = hasChildren ? '. Has child nodes.' : '.'
     return `Decision ${nodeType}: ${node.text.value}${pathDesc}${childrenHint}`
   }
 
@@ -219,11 +221,7 @@ const TreeNode = ({
           onChange={handleTextChange}
           onEditToggle={handleEditToggle}
         />
-        <div
-          className="flex justify-between p-2 border-t w-full"
-          role="group"
-          aria-label="Node actions"
-        >
+        <div className="flex justify-between p-2 border-t w-full">
           <Button
             variant="ghost"
             size="icon"

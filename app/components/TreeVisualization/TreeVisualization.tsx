@@ -291,7 +291,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
             minHeight: `${Math.max(treeHeight * 2, containerHeight)}px`,
           }}
           role="tree"
-          aria-label="Decision tree structure"
+          // aria-label="Decision tree structure"
         >
           <div style={{ pointerEvents: 'all' }}>
             <TreeNode
