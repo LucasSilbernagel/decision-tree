@@ -6,7 +6,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { TREE_CONSTANTS } from '~/constants'
 import { TreeNodeTitle } from '../TreeNodeTitle/TreeNodeTitle'
 import DOMPurify from 'dompurify'
-import { calculateTreeDimensions, getPathDescription } from '~/utils'
+import { calculateTreeDimensions } from '~/utils'
 
 type TreeNodeProps = {
   node: DecisionTreeNode
@@ -188,9 +188,8 @@ const TreeNode = ({
 
   const getNodeAriaLabel = () => {
     const nodeType = depth === 0 ? 'root' : ''
-    const pathDesc = depth === 0 ? '' : getPathDescription(nodeRef)
     const childrenHint = hasChildren ? '. Has child nodes.' : '.'
-    return `Decision ${nodeType}: ${node.text.value}${pathDesc}${childrenHint}`
+    return `Decision ${nodeType}: ${node.text.value}${childrenHint}`
   }
 
   return (
@@ -205,7 +204,6 @@ const TreeNode = ({
         ref={nodeRef}
         className="left-1/2 z-10 absolute flex flex-col items-center border-gray-300 bg-gray-50 shadow-sm p-0 border rounded-lg focus-within:ring-2 focus-within:ring-blue-500 w-[300px] transform -translate-x-1/2 overflow-hidden"
         style={{ top: `${depth * VERTICAL_SPACING}px` }}
-        aria-level={depth + 1}
         onKeyDown={handleKeyDown}
         data-node-text={node.text.value}
         aria-label={getNodeAriaLabel()}
@@ -239,7 +237,7 @@ const TreeNode = ({
                 ? 'invisible'
                 : ''
             }
-            aria-label="Add yes/no children nodes"
+            aria-label="Add child nodes"
           >
             <Plus aria-hidden="true" />
           </Button>
@@ -257,7 +255,7 @@ const TreeNode = ({
           }}
           data-node-type="no"
           role="group"
-          aria-label="No branch"
+          aria-label={`${node.text.value}: no.`}
         >
           <TreeNode
             node={node.no}
@@ -283,7 +281,7 @@ const TreeNode = ({
           }}
           data-node-type="yes"
           role="group"
-          aria-label="Yes branch"
+          aria-label={`${node.text.value}: yes.`}
         >
           <TreeNode
             node={node.yes}
