@@ -238,8 +238,7 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
         role="region"
         aria-label="Decision tree navigation area"
         // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-        tabIndex={0}
-        className="relative w-full overflow-auto select-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="relative w-full overflow-auto select-none"
         style={{
           height: `${containerHeight}px`,
           cursor: isDragging ? 'grabbing' : 'grab',
