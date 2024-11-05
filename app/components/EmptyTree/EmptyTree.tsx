@@ -56,7 +56,7 @@ const EmptyTree = ({
           </div>
         </div>
         <h2 className="text-xl">
-          A simple generator of shareable decision trees.
+          A simple generator of shareable and accessible decision trees.
         </h2>
       </div>
     </div>
