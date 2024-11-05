@@ -1,7 +1,9 @@
+export type NodeType = 'yes' | 'no' | 'root'
+
 export type NodePosition = {
   x: number
   y: number
-  type: 'yes' | 'no' | 'root'
+  type: NodeType
 }
 
 export type DecisionTreeNode = {
@@ -13,6 +15,7 @@ export type DecisionTreeNode = {
   yes: DecisionTreeNode | null
   no: DecisionTreeNode | null
   parentId?: number
+  type?: NodeType
 }
 
 export type DecisionTree = {

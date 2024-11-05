@@ -96,3 +96,26 @@ export const deserializeDecisionTree = (data: string): DecisionTree | null => {
     return null
   }
 }
+
+export function debounce<T extends (...args: unknown[]) => void>(
+  func: T,
+  delay: number
+) {
+  let timeoutId: ReturnType<typeof setTimeout> | null
+
+  const debouncedFunction = (...args: Parameters<T>) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+    timeoutId = setTimeout(() => func(...args), delay)
+  }
+
+  debouncedFunction.cancel = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+      timeoutId = null
+    }
+  }
+
+  return debouncedFunction
+}

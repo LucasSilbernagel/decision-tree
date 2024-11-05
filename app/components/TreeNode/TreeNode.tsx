@@ -6,7 +6,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { TREE_CONSTANTS } from '~/constants'
 import { TreeNodeTitle } from '../TreeNodeTitle/TreeNodeTitle'
 import DOMPurify from 'dompurify'
-import { calculateTreeDimensions } from '~/utils'
+import { calculateTreeDimensions, debounce } from '~/utils'
 
 type TreeNodeProps = {
   node: DecisionTreeNode
@@ -102,10 +102,13 @@ const TreeNode = ({
       }
     }
 
-    const timeoutId = setTimeout(updatePosition, 50)
+    // Initial position update
+    updatePosition()
+
+    const debouncedUpdate = debounce(updatePosition, 100)
 
     const observer = new ResizeObserver(() => {
-      setTimeout(updatePosition, 50)
+      debouncedUpdate()
     })
 
     if (currentNode) {
@@ -113,8 +116,8 @@ const TreeNode = ({
     }
 
     return () => {
-      clearTimeout(timeoutId)
       observer.disconnect()
+      debouncedUpdate.cancel()
     }
   }, [node.id, onPositionUpdate, containerRef])
 
@@ -145,27 +148,53 @@ const TreeNode = ({
   const handleAddChildren = () => {
     const { noId, yesId } = getNewIds()
 
-    const newNode = {
-      ...node,
-      text: {
-        value: node.text.value,
-        isEditing: false,
-      },
-      yes: {
-        id: yesId,
-        text: { value: 'Yes', isEditing: false },
-        yes: null,
-        no: null,
-      },
-      no: {
-        id: noId,
-        text: { value: 'No', isEditing: false },
-        yes: null,
-        no: null,
-      },
-    }
+    if (nodeRef.current && containerRef.current) {
+      const HORIZONTAL_GAP = 200
+      const parentX = xOffset
 
-    updateNode(newNode)
+      // Set child positions relative to parent
+      const yesPosition: NodePosition = {
+        x: parentX + HORIZONTAL_GAP,
+        y: (depth + 1) * VERTICAL_SPACING,
+        type: 'yes',
+      }
+
+      const noPosition: NodePosition = {
+        x: parentX - HORIZONTAL_GAP,
+        y: (depth + 1) * VERTICAL_SPACING,
+        type: 'no',
+      }
+
+      // Update node structure with new child nodes
+      const newNode = {
+        ...node,
+        text: {
+          value: node.text.value,
+          isEditing: false,
+        },
+        yes: node.yes || {
+          id: yesId,
+          text: { value: 'Yes', isEditing: false },
+          yes: null,
+          no: null,
+          parentId: node.id,
+        },
+        no: node.no || {
+          id: noId,
+          text: { value: 'No', isEditing: false },
+          yes: null,
+          no: null,
+          parentId: node.id,
+        },
+      }
+
+      // Initial positions for new nodes
+      onPositionUpdate(yesId, yesPosition)
+      onPositionUpdate(noId, noPosition)
+
+      // Update the tree with new nodes
+      updateNode(newNode)
+    }
   }
 
   const handleDelete = () => {
