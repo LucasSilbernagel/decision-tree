@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import Footer from './Footer'
 
 describe('Footer', () => {
-  it('renders correctly', async () => {
+  it('renders correctly', () => {
     render(<Footer />)
     expect(screen.getByText('Built by')).toBeVisible()
     expect(screen.getByText('Lucas Silbernagel')).toBeVisible()
