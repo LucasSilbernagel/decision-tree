@@ -13,7 +13,7 @@ type TreeTitleProps = {
 }
 
 export const TreeTitle: React.FC<TreeTitleProps> = ({
-  title,
+  title = { value: 'Decision Tree Title', isEditing: false },
   treeTitle,
   onTitleDraftChange,
   onTitleEdit,
