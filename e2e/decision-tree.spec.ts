@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 test.beforeEach(async ({ page }) => {
-  await page.goto(process.env.VERCEL_PREVIEW_URL || 'http://localhost:5173/')
+  await page.goto('/')
 })
 
 test.describe('pageload', () => {
