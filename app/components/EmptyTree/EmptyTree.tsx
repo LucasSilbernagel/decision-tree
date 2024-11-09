@@ -1,33 +1,24 @@
 import { useNavigate } from '@remix-run/react'
 import { Button } from '../ui/button'
-import { NEW_TREE, SERIALIZED_EXAMPLE_TREE, TREE_CONSTANTS } from '~/constants'
+import { NEW_TREE, SERIALIZED_EXAMPLE_TREE } from '~/constants'
 import { DecisionTree } from '~/types'
-import { Dispatch, MutableRefObject, SetStateAction } from 'react'
+import { MutableRefObject } from 'react'
 import { serializeDecisionTree } from '~/utils'
 import { Plus, Eye } from 'lucide-react'
 
 type EmptyTreeProps = {
   setDecisionTree: (tree: DecisionTree | null) => void
-  setTreeWidth: Dispatch<SetStateAction<number>>
-  setTreeHeight: Dispatch<SetStateAction<number>>
   lastSerializedState: MutableRefObject<string>
 }
 
 const EmptyTree = ({
   setDecisionTree,
-  setTreeWidth,
-  setTreeHeight,
   lastSerializedState,
 }: EmptyTreeProps) => {
   const navigate = useNavigate()
 
   const createNewDecisionTree = () => {
-    const initialWidth = TREE_CONSTANTS.MIN_NODE_WIDTH * 3
-    const initialHeight = TREE_CONSTANTS.VERTICAL_SPACING * 2
-
     setDecisionTree(NEW_TREE)
-    setTreeWidth(initialWidth)
-    setTreeHeight(initialHeight)
 
     // Immediately update URL with the new tree data
     const serializedTree = serializeDecisionTree(NEW_TREE)

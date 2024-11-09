@@ -37,8 +37,6 @@ export default function Index() {
   const navigate = useNavigate()
 
   const [decisionTree, setDecisionTree] = useState<DecisionTree | null>(null)
-  const [treeWidth, setTreeWidth] = useState(0)
-  const [treeHeight, setTreeHeight] = useState(0)
   const [nodePositions, setNodePositions] = useState<Map<number, NodePosition>>(
     new Map()
   )
@@ -87,28 +85,20 @@ export default function Index() {
     }
   }, [treeData])
 
+  // Update center alignment when tree changes
   useEffect(() => {
-    // Update existing decision tree state as it is edited
-    if (decisionTree) {
-      const { width, height } = calculateTreeDimensions(decisionTree.node)
-      setTreeWidth(width)
-      setTreeHeight(height)
-    }
-  }, [decisionTree])
-
-  useEffect(() => {
-    // Keep decision tree centered on the screen as it grows
     const handleResize = () => {
-      if (treeContainerRef.current) {
+      if (treeContainerRef.current && decisionTree) {
+        const { width } = calculateTreeDimensions(decisionTree.node)
         const containerWidth = treeContainerRef.current.offsetWidth
-        const leftMargin = Math.max(0, (containerWidth - treeWidth) / 2)
+        const leftMargin = Math.max(0, (containerWidth - width) / 2)
         treeContainerRef.current.style.marginLeft = `${leftMargin}px`
       }
     }
     handleResize()
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [treeWidth])
+  }, [decisionTree])
 
   // Update URL when tree changes (but not during editing)
   useEffect(() => {
@@ -140,8 +130,6 @@ export default function Index() {
             <FullTree
               decisionTree={decisionTree}
               setDecisionTree={setDecisionTree}
-              treeHeight={treeHeight}
-              treeWidth={treeWidth}
               nodePositions={nodePositions}
               setNodePositions={setNodePositions}
               treeContainerRef={treeContainerRef}
@@ -149,8 +137,6 @@ export default function Index() {
           ) : (
             <EmptyTree
               setDecisionTree={setDecisionTree}
-              setTreeHeight={setTreeHeight}
-              setTreeWidth={setTreeWidth}
               lastSerializedState={lastSerializedState}
             />
           )}

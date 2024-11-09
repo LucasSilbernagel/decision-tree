@@ -20,8 +20,6 @@ describe('FullTree', () => {
   const mockProps = {
     decisionTree: EXAMPLE_TREE,
     setDecisionTree: vi.fn(),
-    treeHeight: 500,
-    treeWidth: 800,
     nodePositions: new Map(),
     setNodePositions: vi.fn(),
     treeContainerRef: { current: document.createElement('div') },

@@ -8,12 +8,11 @@ import { TreeTitle } from '../TreeTitle/TreeTitle'
 import { TreeVisualization } from '../TreeVisualization/TreeVisualization'
 import DOMPurify from 'dompurify'
 import { RefObject } from 'react'
+import { calculateTreeDimensions } from '~/utils'
 
 type FullTreeProps = {
   decisionTree: DecisionTree
   setDecisionTree: (tree: DecisionTree | null) => void
-  treeHeight: number
-  treeWidth: number
   nodePositions: Map<number, NodePosition>
   setNodePositions: React.Dispatch<
     React.SetStateAction<Map<number, NodePosition>>
@@ -24,14 +23,16 @@ type FullTreeProps = {
 const FullTree = ({
   decisionTree,
   setDecisionTree,
-  treeHeight,
-  treeWidth,
   nodePositions,
   setNodePositions,
   treeContainerRef,
 }: FullTreeProps) => {
   const { toast } = useToast()
   const navigate = useNavigate()
+
+  const { width: treeWidth, height: treeHeight } = calculateTreeDimensions(
+    decisionTree.node
+  )
 
   const handleTitleDraftChange = (value: string) => {
     setDecisionTree({

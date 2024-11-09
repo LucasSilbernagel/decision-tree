@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import EmptyTree from './EmptyTree'
-import { NEW_TREE, SERIALIZED_EXAMPLE_TREE, TREE_CONSTANTS } from '~/constants'
+import { NEW_TREE, SERIALIZED_EXAMPLE_TREE } from '~/constants'
 
 const mockNavigate = vi.fn()
 
@@ -18,8 +18,6 @@ vi.mock('~/utils', () => ({
 
 describe('EmptyTree', () => {
   const mockSetDecisionTree = vi.fn()
-  const mockSetTreeWidth = vi.fn()
-  const mockSetTreeHeight = vi.fn()
   const mockLastSerializedState = { current: '' }
 
   beforeEach(() => {
@@ -30,8 +28,6 @@ describe('EmptyTree', () => {
     render(
       <EmptyTree
         setDecisionTree={mockSetDecisionTree}
-        setTreeWidth={mockSetTreeWidth}
-        setTreeHeight={mockSetTreeHeight}
         lastSerializedState={mockLastSerializedState}
       />
     )
@@ -52,8 +48,6 @@ describe('EmptyTree', () => {
     render(
       <EmptyTree
         setDecisionTree={mockSetDecisionTree}
-        setTreeWidth={mockSetTreeWidth}
-        setTreeHeight={mockSetTreeHeight}
         lastSerializedState={mockLastSerializedState}
       />
     )
@@ -71,8 +65,6 @@ describe('EmptyTree', () => {
     render(
       <EmptyTree
         setDecisionTree={mockSetDecisionTree}
-        setTreeWidth={mockSetTreeWidth}
-        setTreeHeight={mockSetTreeHeight}
         lastSerializedState={mockLastSerializedState}
       />
     )
@@ -80,12 +72,6 @@ describe('EmptyTree', () => {
     await user.click(screen.getByRole('button', { name: /new/i }))
 
     expect(mockSetDecisionTree).toHaveBeenCalledWith(NEW_TREE)
-    expect(mockSetTreeWidth).toHaveBeenCalledWith(
-      TREE_CONSTANTS.MIN_NODE_WIDTH * 3
-    )
-    expect(mockSetTreeHeight).toHaveBeenCalledWith(
-      TREE_CONSTANTS.VERTICAL_SPACING * 2
-    )
 
     expect(mockLastSerializedState.current).toBe('mock-serialized-tree')
     expect(mockNavigate).toHaveBeenCalledWith('?tree=mock-serialized-tree', {
@@ -97,8 +83,6 @@ describe('EmptyTree', () => {
     const { container } = render(
       <EmptyTree
         setDecisionTree={mockSetDecisionTree}
-        setTreeWidth={mockSetTreeWidth}
-        setTreeHeight={mockSetTreeHeight}
         lastSerializedState={mockLastSerializedState}
       />
     )
@@ -112,8 +96,6 @@ describe('EmptyTree', () => {
     render(
       <EmptyTree
         setDecisionTree={mockSetDecisionTree}
-        setTreeWidth={mockSetTreeWidth}
-        setTreeHeight={mockSetTreeHeight}
         lastSerializedState={mockLastSerializedState}
       />
     )
