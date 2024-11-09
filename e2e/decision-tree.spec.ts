@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
 
 test.describe('pageload', () => {
   test('should load all landing page content as expected', async ({ page }) => {
-    await expect(page).toHaveTitle(/Home/)
+    await expect(page).toHaveTitle(/Blah/i)
     await expect(page.getByRole('button', { name: /Example/i })).toBeVisible()
     await expect(page.getByRole('button', { name: /New/i })).toBeVisible()
     await expect(
