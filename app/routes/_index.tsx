@@ -37,13 +37,9 @@ export default function Index() {
   const navigate = useNavigate()
 
   const [decisionTree, setDecisionTree] = useState<DecisionTree | null>(null)
-  const [treeWidth, setTreeWidth] = useState(0)
-  const [treeHeight, setTreeHeight] = useState(0)
-  const [treeTitle, setTreeTitle] = useState('')
   const [nodePositions, setNodePositions] = useState<Map<number, NodePosition>>(
     new Map()
   )
-  const [highestNodeId, setHighestNodeId] = useState(0)
 
   const treeContainerRef = useRef<HTMLDivElement>(null)
   const lastSerializedState = useRef<string>('')
@@ -89,38 +85,20 @@ export default function Index() {
     }
   }, [treeData])
 
+  // Update center alignment when tree changes
   useEffect(() => {
-    // Update existing decision tree state as it is edited
-    if (decisionTree) {
-      setHighestNodeId((prevId) => {
-        const findHighestId = (node: DecisionTreeNode): number => {
-          if (!node) return prevId
-          const yesMax = node.yes ? findHighestId(node.yes) : node.id
-          const noMax = node.no ? findHighestId(node.no) : node.id
-          return Math.max(node.id, yesMax, noMax)
-        }
-        return findHighestId(decisionTree.node)
-      })
-      setTreeTitle(decisionTree.title.value)
-      const { width, height } = calculateTreeDimensions(decisionTree.node)
-      setTreeWidth(width)
-      setTreeHeight(height)
-    }
-  }, [decisionTree])
-
-  useEffect(() => {
-    // Keep decision tree centered on the screen as it grows
     const handleResize = () => {
-      if (treeContainerRef.current) {
+      if (treeContainerRef.current && decisionTree) {
+        const { width } = calculateTreeDimensions(decisionTree.node)
         const containerWidth = treeContainerRef.current.offsetWidth
-        const leftMargin = Math.max(0, (containerWidth - treeWidth) / 2)
+        const leftMargin = Math.max(0, (containerWidth - width) / 2)
         treeContainerRef.current.style.marginLeft = `${leftMargin}px`
       }
     }
     handleResize()
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [treeWidth])
+  }, [decisionTree])
 
   // Update URL when tree changes (but not during editing)
   useEffect(() => {
@@ -152,21 +130,13 @@ export default function Index() {
             <FullTree
               decisionTree={decisionTree}
               setDecisionTree={setDecisionTree}
-              treeTitle={treeTitle}
-              setTreeTitle={setTreeTitle}
-              treeHeight={treeHeight}
-              treeWidth={treeWidth}
               nodePositions={nodePositions}
               setNodePositions={setNodePositions}
-              highestNodeId={highestNodeId}
-              setHighestNodeId={setHighestNodeId}
               treeContainerRef={treeContainerRef}
             />
           ) : (
             <EmptyTree
               setDecisionTree={setDecisionTree}
-              setTreeHeight={setTreeHeight}
-              setTreeWidth={setTreeWidth}
               lastSerializedState={lastSerializedState}
             />
           )}

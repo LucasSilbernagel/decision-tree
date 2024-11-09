@@ -8,7 +8,7 @@ import { TreeNodeTitle } from '../TreeNodeTitle/TreeNodeTitle'
 import DOMPurify from 'dompurify'
 import { calculateTreeDimensions, debounce } from '~/utils'
 
-type TreeNodeProps = {
+export type TreeNodeProps = {
   node: DecisionTreeNode
   updateNode: (newNode: DecisionTreeNode) => void
   deleteNode: (nodeId: number) => void

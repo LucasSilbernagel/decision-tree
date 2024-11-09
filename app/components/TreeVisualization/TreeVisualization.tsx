@@ -3,7 +3,7 @@ import { DecisionTreeNode, NodePosition } from '~/types'
 import TreeNode from '~/components/TreeNode/TreeNode'
 import { BackToStartButton } from '../BackToStartButton/BackToStartButton'
 
-type TreeVisualizationProps = {
+export type TreeVisualizationProps = {
   node: DecisionTreeNode
   treeHeight: number
   treeWidth: number
@@ -27,10 +27,10 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
   containerRef,
 }) => {
   const [isDragging, setIsDragging] = useState(false)
-  const [startX, setStartX] = useState(0)
-  const [startY, setStartY] = useState(0)
-  const [scrollLeft, setScrollLeft] = useState(0)
-  const [scrollTop, setScrollTop] = useState(0)
+  const [startX, setStartX] = useState<number>(0)
+  const [startY, setStartY] = useState<number>(0)
+  const [scrollLeft, setScrollLeft] = useState<number>(0)
+  const [scrollTop, setScrollTop] = useState<number>(0)
   const [isRootVisible, setIsRootVisible] = useState(true)
 
   const viewportHeight =
@@ -237,7 +237,6 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
       <div
         role="region"
         aria-label="Decision tree navigation area"
-        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
         className="relative w-full overflow-auto select-none"
         style={{
           height: `${containerHeight}px`,

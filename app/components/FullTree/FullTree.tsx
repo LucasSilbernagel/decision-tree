@@ -7,39 +7,52 @@ import { useNavigate } from '@remix-run/react'
 import { TreeTitle } from '../TreeTitle/TreeTitle'
 import { TreeVisualization } from '../TreeVisualization/TreeVisualization'
 import DOMPurify from 'dompurify'
-import { Dispatch, RefObject, SetStateAction } from 'react'
+import { RefObject } from 'react'
+import { calculateTreeDimensions } from '~/utils'
 
 type FullTreeProps = {
   decisionTree: DecisionTree
   setDecisionTree: (tree: DecisionTree | null) => void
-  treeTitle: string
-  setTreeTitle: Dispatch<SetStateAction<string>>
-  treeHeight: number
-  treeWidth: number
   nodePositions: Map<number, NodePosition>
   setNodePositions: React.Dispatch<
     React.SetStateAction<Map<number, NodePosition>>
   >
-  highestNodeId: number
-  setHighestNodeId: Dispatch<SetStateAction<number>>
   treeContainerRef: RefObject<HTMLDivElement>
 }
 
 const FullTree = ({
   decisionTree,
   setDecisionTree,
-  treeTitle,
-  setTreeTitle,
-  treeHeight,
-  treeWidth,
   nodePositions,
   setNodePositions,
-  highestNodeId,
-  setHighestNodeId,
   treeContainerRef,
 }: FullTreeProps) => {
   const { toast } = useToast()
   const navigate = useNavigate()
+
+  const { width: treeWidth, height: treeHeight } = calculateTreeDimensions(
+    decisionTree.node
+  )
+
+  const handleTitleChange = (value: string) => {
+    setDecisionTree({
+      ...decisionTree,
+      title: {
+        ...decisionTree.title,
+        value: DOMPurify.sanitize(value),
+      },
+    })
+  }
+
+  const handleTitleEdit = () => {
+    setDecisionTree({
+      ...decisionTree,
+      title: {
+        ...decisionTree.title,
+        isEditing: !decisionTree.title.isEditing,
+      },
+    })
+  }
 
   const handleShare = async () => {
     try {
@@ -54,18 +67,6 @@ const FullTree = ({
   const handleReset = () => {
     setDecisionTree(null)
     navigate('/', { replace: true })
-  }
-
-  const handleTitleEdit = () => {
-    if (decisionTree) {
-      setDecisionTree({
-        ...decisionTree,
-        title: {
-          value: DOMPurify.sanitize(treeTitle) || 'Decision Tree Title',
-          isEditing: !decisionTree.title.isEditing,
-        },
-      })
-    }
   }
 
   const updateTree = (newNode: DecisionTreeNode) => {
@@ -131,10 +132,17 @@ const FullTree = ({
     })
   }
 
+  const findHighestNodeId = (node: DecisionTreeNode): number => {
+    if (!node) return 0
+    const yesMax = node.yes ? findHighestNodeId(node.yes) : node.id
+    const noMax = node.no ? findHighestNodeId(node.no) : node.id
+    return Math.max(node.id, yesMax, noMax)
+  }
+
   const getNewIds = () => {
-    const noId = highestNodeId + 1
+    const currentHighestId = findHighestNodeId(decisionTree.node)
+    const noId = currentHighestId + 1
     const yesId = noId + 1
-    setHighestNodeId(yesId)
     return { noId, yesId }
   }
 
@@ -149,8 +157,7 @@ const FullTree = ({
       </div>
       <TreeTitle
         title={decisionTree.title}
-        treeTitle={treeTitle}
-        onTitleDraftChange={setTreeTitle}
+        handleTitleChange={handleTitleChange}
         onTitleEdit={handleTitleEdit}
       />
       <TreeVisualization
