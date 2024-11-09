@@ -7,13 +7,13 @@ import DOMPurify from 'dompurify'
 
 type TreeTitleProps = {
   title: { value: string; isEditing: boolean }
-  onTitleDraftChange: (value: string) => void
+  handleTitleChange: (value: string) => void
   onTitleEdit: () => void
 }
 
 export const TreeTitle: React.FC<TreeTitleProps> = ({
   title = { value: 'Decision Tree Title', isEditing: false },
-  onTitleDraftChange,
+  handleTitleChange,
   onTitleEdit,
 }) => (
   <div className="mt-4 mb-6 px-4 sm:px-0">
@@ -27,7 +27,7 @@ export const TreeTitle: React.FC<TreeTitleProps> = ({
             id="decisionTreeTitle"
             value={DOMPurify.sanitize(title.value)}
             placeholder="Decision Tree Title"
-            onChange={(e) => onTitleDraftChange(e.target.value)}
+            onChange={(e) => handleTitleChange(e.target.value)}
             className="mx-auto max-w-max text-3xl text-center"
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus

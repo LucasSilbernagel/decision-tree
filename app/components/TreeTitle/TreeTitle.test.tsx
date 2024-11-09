@@ -16,7 +16,7 @@ describe('TreeTitle', () => {
       value: 'Test Title',
       isEditing: false,
     },
-    onTitleDraftChange: vi.fn(),
+    handleTitleChange: vi.fn(),
     onTitleEdit: vi.fn(),
   }
 
@@ -58,14 +58,14 @@ describe('TreeTitle', () => {
       expect(input).toHaveValue('Test Title')
     })
 
-    it('calls onTitleDraftChange when text is entered', async () => {
+    it('calls handleTitleChange when text is entered', async () => {
       const user = userEvent.setup()
       render(<TreeTitle {...editModeProps} />)
 
       const input = screen.getByRole('textbox')
       await user.type(input, 'New Title')
 
-      expect(defaultProps.onTitleDraftChange).toHaveBeenCalled()
+      expect(defaultProps.handleTitleChange).toHaveBeenCalled()
     })
 
     it('sanitizes input value', () => {

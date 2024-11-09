@@ -34,7 +34,7 @@ const FullTree = ({
     decisionTree.node
   )
 
-  const handleTitleDraftChange = (value: string) => {
+  const handleTitleChange = (value: string) => {
     setDecisionTree({
       ...decisionTree,
       title: {
@@ -157,7 +157,7 @@ const FullTree = ({
       </div>
       <TreeTitle
         title={decisionTree.title}
-        onTitleDraftChange={handleTitleDraftChange}
+        handleTitleChange={handleTitleChange}
         onTitleEdit={handleTitleEdit}
       />
       <TreeVisualization

@@ -27,10 +27,10 @@ export const TreeVisualization: React.FC<TreeVisualizationProps> = ({
   containerRef,
 }) => {
   const [isDragging, setIsDragging] = useState(false)
-  const [startX, setStartX] = useState(0)
-  const [startY, setStartY] = useState(0)
-  const [scrollLeft, setScrollLeft] = useState(0)
-  const [scrollTop, setScrollTop] = useState(0)
+  const [startX, setStartX] = useState<number>(0)
+  const [startY, setStartY] = useState<number>(0)
+  const [scrollLeft, setScrollLeft] = useState<number>(0)
+  const [scrollTop, setScrollTop] = useState<number>(0)
   const [isRootVisible, setIsRootVisible] = useState(true)
 
   const viewportHeight =
