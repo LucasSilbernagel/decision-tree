@@ -74,6 +74,10 @@ describe('FullTree', () => {
   })
 
   it('handles share button click failure', async () => {
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {})
+
     const user = userEvent.setup()
 
     navigator.clipboard.writeText = vi
@@ -88,6 +92,8 @@ describe('FullTree', () => {
       title: 'Failed to copy URL',
       variant: 'destructive',
     })
+
+    consoleErrorSpy.mockRestore()
   })
 
   it('handles title edit', async () => {
