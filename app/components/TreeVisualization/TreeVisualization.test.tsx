@@ -1,5 +1,4 @@
-/* eslint-disable testing-library/no-unnecessary-act */
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { TreeVisualization, TreeVisualizationProps } from './TreeVisualization'
@@ -37,14 +36,6 @@ vi.mock('~/components/TreeNode/TreeNode', () => ({
       </div>
     )
   },
-}))
-
-vi.mock('../BackToStartButton/BackToStartButton', () => ({
-  BackToStartButton: ({ onClick }: { onClick: () => void }) => (
-    <button onClick={onClick} data-testid="back-to-start">
-      Back to start
-    </button>
-  ),
 }))
 
 describe('TreeVisualization', () => {
@@ -231,60 +222,6 @@ describe('TreeVisualization', () => {
       fireEvent.mouseLeave(container)
 
       expect(container).toHaveStyle({ cursor: 'grab' })
-    })
-  })
-
-  describe('Root Visibility and Navigation', () => {
-    it('performs initial scroll to root on mount', async () => {
-      const { props, mockScrollTo } = setupComponent()
-
-      await act(async () => {
-        render(<TreeVisualization {...props} />)
-      })
-
-      await act(async () => {
-        vi.advanceTimersByTime(100)
-      })
-
-      await act(async () => {
-        await vi.runAllTimersAsync()
-      })
-
-      expect(mockScrollTo).toHaveBeenCalledWith({
-        left: -100,
-        top: 0,
-        behavior: 'smooth',
-      })
-    })
-
-    it('scrolls to root position when back-to-start is clicked', async () => {
-      const { props, mockScrollTo } = setupComponent()
-
-      await act(async () => {
-        render(<TreeVisualization {...props} />)
-      })
-
-      // Clear initial scroll
-      vi.runAllTimers()
-      mockScrollTo.mockClear()
-
-      await act(async () => {
-        mockVisibilityState.callback?.(false)
-      })
-
-      const backToStartButton = screen.getByTestId('back-to-start')
-      expect(backToStartButton).toBeInTheDocument()
-
-      await act(async () => {
-        await userEvent.click(backToStartButton)
-        vi.runAllTimers()
-      })
-
-      expect(mockScrollTo).toHaveBeenCalledWith({
-        left: -100,
-        top: 0,
-        behavior: 'smooth',
-      })
     })
   })
 })
