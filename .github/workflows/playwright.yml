@@ -1,7 +1,5 @@
 name: Playwright Tests
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 jobs:
@@ -17,6 +15,26 @@ jobs:
         run: npm install -g pnpm && pnpm install
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
+      - name: Fetch and Set Vercel Preview URL
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          DEPLOYMENTS=$(curl -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" "https://api.vercel.com/v5/now/deployments")
+          PREVIEW_URL=$(echo $DEPLOYMENTS | jq -r --arg prNum "$PR_NUMBER" '.deployments[] | select(.meta.githubPrId == $prNum) | .url' | head -n 1)
+
+          echo "Selected URL: $PREVIEW_URL"
+
+          if [ -z "$PREVIEW_URL" ]; then
+            echo "No preview URL found for PR $PR_NUMBER"
+          else
+            # Ensure the URL starts with https://
+            if [[ $PREVIEW_URL != http* ]]; then
+              PREVIEW_URL="https://$PREVIEW_URL"
+            fi
+            echo "Formatted URL: $PREVIEW_URL"
+            echo "VERCEL_PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_ENV
+          fi
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       - name: Run Playwright tests
         run: pnpm exec playwright test
       - uses: actions/upload-artifact@v4
