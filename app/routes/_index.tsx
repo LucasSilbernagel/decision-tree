@@ -39,7 +39,6 @@ export default function Index() {
   const [decisionTree, setDecisionTree] = useState<DecisionTree | null>(null)
   const [treeWidth, setTreeWidth] = useState(0)
   const [treeHeight, setTreeHeight] = useState(0)
-  const [treeTitle, setTreeTitle] = useState('')
   const [nodePositions, setNodePositions] = useState<Map<number, NodePosition>>(
     new Map()
   )
@@ -101,7 +100,6 @@ export default function Index() {
         }
         return findHighestId(decisionTree.node)
       })
-      setTreeTitle(decisionTree.title.value)
       const { width, height } = calculateTreeDimensions(decisionTree.node)
       setTreeWidth(width)
       setTreeHeight(height)
@@ -152,8 +150,6 @@ export default function Index() {
             <FullTree
               decisionTree={decisionTree}
               setDecisionTree={setDecisionTree}
-              treeTitle={treeTitle}
-              setTreeTitle={setTreeTitle}
               treeHeight={treeHeight}
               treeWidth={treeWidth}
               nodePositions={nodePositions}

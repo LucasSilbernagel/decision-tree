@@ -12,8 +12,6 @@ import { Dispatch, RefObject, SetStateAction } from 'react'
 type FullTreeProps = {
   decisionTree: DecisionTree
   setDecisionTree: (tree: DecisionTree | null) => void
-  treeTitle: string
-  setTreeTitle: Dispatch<SetStateAction<string>>
   treeHeight: number
   treeWidth: number
   nodePositions: Map<number, NodePosition>
@@ -28,8 +26,6 @@ type FullTreeProps = {
 const FullTree = ({
   decisionTree,
   setDecisionTree,
-  treeTitle,
-  setTreeTitle,
   treeHeight,
   treeWidth,
   nodePositions,
@@ -40,6 +36,26 @@ const FullTree = ({
 }: FullTreeProps) => {
   const { toast } = useToast()
   const navigate = useNavigate()
+
+  const handleTitleDraftChange = (value: string) => {
+    setDecisionTree({
+      ...decisionTree,
+      title: {
+        ...decisionTree.title,
+        value: DOMPurify.sanitize(value),
+      },
+    })
+  }
+
+  const handleTitleEdit = () => {
+    setDecisionTree({
+      ...decisionTree,
+      title: {
+        ...decisionTree.title,
+        isEditing: !decisionTree.title.isEditing,
+      },
+    })
+  }
 
   const handleShare = async () => {
     try {
@@ -54,18 +70,6 @@ const FullTree = ({
   const handleReset = () => {
     setDecisionTree(null)
     navigate('/', { replace: true })
-  }
-
-  const handleTitleEdit = () => {
-    if (decisionTree) {
-      setDecisionTree({
-        ...decisionTree,
-        title: {
-          value: DOMPurify.sanitize(treeTitle) || 'Decision Tree Title',
-          isEditing: !decisionTree.title.isEditing,
-        },
-      })
-    }
   }
 
   const updateTree = (newNode: DecisionTreeNode) => {
@@ -149,8 +153,7 @@ const FullTree = ({
       </div>
       <TreeTitle
         title={decisionTree.title}
-        treeTitle={treeTitle}
-        onTitleDraftChange={setTreeTitle}
+        onTitleDraftChange={handleTitleDraftChange}
         onTitleEdit={handleTitleEdit}
       />
       <TreeVisualization

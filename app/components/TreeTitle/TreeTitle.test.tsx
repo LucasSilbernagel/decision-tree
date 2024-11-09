@@ -16,7 +16,6 @@ describe('TreeTitle', () => {
       value: 'Test Title',
       isEditing: false,
     },
-    treeTitle: 'Test Title',
     onTitleDraftChange: vi.fn(),
     onTitleEdit: vi.fn(),
   }
