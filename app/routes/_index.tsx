@@ -42,7 +42,6 @@ export default function Index() {
   const [nodePositions, setNodePositions] = useState<Map<number, NodePosition>>(
     new Map()
   )
-  const [highestNodeId, setHighestNodeId] = useState(0)
 
   const treeContainerRef = useRef<HTMLDivElement>(null)
   const lastSerializedState = useRef<string>('')
@@ -91,15 +90,6 @@ export default function Index() {
   useEffect(() => {
     // Update existing decision tree state as it is edited
     if (decisionTree) {
-      setHighestNodeId((prevId) => {
-        const findHighestId = (node: DecisionTreeNode): number => {
-          if (!node) return prevId
-          const yesMax = node.yes ? findHighestId(node.yes) : node.id
-          const noMax = node.no ? findHighestId(node.no) : node.id
-          return Math.max(node.id, yesMax, noMax)
-        }
-        return findHighestId(decisionTree.node)
-      })
       const { width, height } = calculateTreeDimensions(decisionTree.node)
       setTreeWidth(width)
       setTreeHeight(height)
@@ -154,8 +144,6 @@ export default function Index() {
               treeWidth={treeWidth}
               nodePositions={nodePositions}
               setNodePositions={setNodePositions}
-              highestNodeId={highestNodeId}
-              setHighestNodeId={setHighestNodeId}
               treeContainerRef={treeContainerRef}
             />
           ) : (

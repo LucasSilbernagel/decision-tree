@@ -7,7 +7,7 @@ import { useNavigate } from '@remix-run/react'
 import { TreeTitle } from '../TreeTitle/TreeTitle'
 import { TreeVisualization } from '../TreeVisualization/TreeVisualization'
 import DOMPurify from 'dompurify'
-import { Dispatch, RefObject, SetStateAction } from 'react'
+import { RefObject } from 'react'
 
 type FullTreeProps = {
   decisionTree: DecisionTree
@@ -18,8 +18,6 @@ type FullTreeProps = {
   setNodePositions: React.Dispatch<
     React.SetStateAction<Map<number, NodePosition>>
   >
-  highestNodeId: number
-  setHighestNodeId: Dispatch<SetStateAction<number>>
   treeContainerRef: RefObject<HTMLDivElement>
 }
 
@@ -30,8 +28,6 @@ const FullTree = ({
   treeWidth,
   nodePositions,
   setNodePositions,
-  highestNodeId,
-  setHighestNodeId,
   treeContainerRef,
 }: FullTreeProps) => {
   const { toast } = useToast()
@@ -135,10 +131,17 @@ const FullTree = ({
     })
   }
 
+  const findHighestNodeId = (node: DecisionTreeNode): number => {
+    if (!node) return 0
+    const yesMax = node.yes ? findHighestNodeId(node.yes) : node.id
+    const noMax = node.no ? findHighestNodeId(node.no) : node.id
+    return Math.max(node.id, yesMax, noMax)
+  }
+
   const getNewIds = () => {
-    const noId = highestNodeId + 1
+    const currentHighestId = findHighestNodeId(decisionTree.node)
+    const noId = currentHighestId + 1
     const yesId = noId + 1
-    setHighestNodeId(yesId)
     return { noId, yesId }
   }
 

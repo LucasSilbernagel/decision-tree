@@ -24,8 +24,6 @@ describe('FullTree', () => {
     treeWidth: 800,
     nodePositions: new Map(),
     setNodePositions: vi.fn(),
-    highestNodeId: 12,
-    setHighestNodeId: vi.fn(),
     treeContainerRef: { current: document.createElement('div') },
   }
 
