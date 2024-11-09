@@ -11,15 +11,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: 'pnpm'
-
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install
@@ -38,10 +38,10 @@ jobs:
           while [ $elapsed -lt $max_wait ]; do
             PR_NUMBER=${{ github.event.pull_request.number }}
             DEPLOYMENTS=$(curl -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-                         "https://api.vercel.com/v5/now/deployments")
+                        "https://api.vercel.com/v5/now/deployments")
             
             PREVIEW_URL=$(echo $DEPLOYMENTS | jq -r --arg prNum "$PR_NUMBER" \
-                         '.deployments[] | select(.meta.githubPrId == $prNum and .state == "READY") | .url' | head -n 1)
+                        '.deployments[] | select(.meta.githubPrId == $prNum and .state == "READY") | .url' | head -n 1)
             
             if [ ! -z "$PREVIEW_URL" ]; then
               if [[ $PREVIEW_URL != http* ]]; then
