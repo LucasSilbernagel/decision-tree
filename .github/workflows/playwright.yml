@@ -8,9 +8,6 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
 
-    env:
-      PLAYWRIGHT_BASE_URL: ${{ env.VERCEL_PREVIEW_URL }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -31,6 +28,7 @@ jobs:
         run: pnpm exec playwright install --with-deps
 
       - name: Wait for Vercel Preview
+        id: wait_for_preview
         run: |
           # Maximum wait time in seconds (5 minutes)
           max_wait=300
@@ -40,16 +38,16 @@ jobs:
           while [ $elapsed -lt $max_wait ]; do
             PR_NUMBER=${{ github.event.pull_request.number }}
             DEPLOYMENTS=$(curl -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-                        "https://api.vercel.com/v5/now/deployments")
+                         "https://api.vercel.com/v5/now/deployments")
             
             PREVIEW_URL=$(echo $DEPLOYMENTS | jq -r --arg prNum "$PR_NUMBER" \
-                        '.deployments[] | select(.meta.githubPrId == $prNum and .state == "READY") | .url' | head -n 1)
+                         '.deployments[] | select(.meta.githubPrId == $prNum and .state == "READY") | .url' | head -n 1)
             
             if [ ! -z "$PREVIEW_URL" ]; then
               if [[ $PREVIEW_URL != http* ]]; then
                 PREVIEW_URL="https://$PREVIEW_URL"
               fi
-              echo "VERCEL_PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_ENV
+              echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_OUTPUT
               echo "Preview URL found: $PREVIEW_URL"
               exit 0
             fi
@@ -67,10 +65,10 @@ jobs:
       - name: Run Playwright tests
         run: pnpm exec playwright test
         env:
-          PLAYWRIGHT_TEST_BASE_URL: ${{ env.VERCEL_PREVIEW_URL }}
+          PLAYWRIGHT_TEST_BASE_URL: ${{ steps.wait_for_preview.outputs.PREVIEW_URL }}
 
       - name: Upload test results
-        if: always() # Upload results even if tests fail
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
