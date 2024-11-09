@@ -30,9 +30,9 @@ jobs:
       - name: Wait for Vercel Preview
         id: wait_for_preview
         run: |
-          # Maximum wait time in seconds (5 minutes)
-          max_wait=300
-          wait_interval=10
+          # Maximum wait time in seconds (10 minutes)
+          max_wait=600
+          wait_interval=15
           elapsed=0
 
           while [ $elapsed -lt $max_wait ]; do
@@ -47,9 +47,20 @@ jobs:
               if [[ $PREVIEW_URL != http* ]]; then
                 PREVIEW_URL="https://$PREVIEW_URL"
               fi
-              echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_OUTPUT
-              echo "Preview URL found: $PREVIEW_URL"
-              exit 0
+              
+              # Verify the deployment is actually accessible
+              HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PREVIEW_URL")
+              
+              if [ "$HTTP_STATUS" = "200" ]; then
+                echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_OUTPUT
+                echo "Preview URL found and verified: $PREVIEW_URL"
+                
+                # Additional wait to ensure application is fully ready
+                sleep 30
+                exit 0
+              else
+                echo "Preview URL found but returned status $HTTP_STATUS. Waiting for it to be ready..."
+              fi
             fi
             
             echo "Waiting for Vercel preview deployment... (${elapsed}s elapsed)"
@@ -63,7 +74,10 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
       - name: Run Playwright tests
-        run: pnpm exec playwright test
+        run: |
+          # Log the URL we're testing against
+          echo "Testing against URL: $PLAYWRIGHT_TEST_BASE_URL"
+          pnpm exec playwright test
         env:
           PLAYWRIGHT_TEST_BASE_URL: ${{ steps.wait_for_preview.outputs.PREVIEW_URL }}
 
