@@ -30,37 +30,26 @@ jobs:
       - name: Wait for Vercel Preview
         id: wait_for_preview
         run: |
-          # Maximum wait time in seconds (10 minutes)
-          max_wait=600
-          wait_interval=15
+          # Maximum wait time in seconds (5 minutes)
+          max_wait=300
+          wait_interval=10
           elapsed=0
 
           while [ $elapsed -lt $max_wait ]; do
             PR_NUMBER=${{ github.event.pull_request.number }}
-            DEPLOYMENTS=$(curl -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-                        "https://api.vercel.com/v5/now/deployments")
+            DEPLOYMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+                        "https://api.vercel.com/v6/deployments?meta-githubPrId=$PR_NUMBER&state=READY&limit=1")
             
-            PREVIEW_URL=$(echo $DEPLOYMENTS | jq -r --arg prNum "$PR_NUMBER" \
-                        '.deployments[] | select(.meta.githubPrId == $prNum and .state == "READY") | .url' | head -n 1)
+            PREVIEW_URL=$(echo $DEPLOYMENTS | jq -r '.deployments[0].url')
             
-            if [ ! -z "$PREVIEW_URL" ]; then
+            if [ ! -z "$PREVIEW_URL" ] && [ "$PREVIEW_URL" != "null" ]; then
               if [[ $PREVIEW_URL != http* ]]; then
                 PREVIEW_URL="https://$PREVIEW_URL"
               fi
               
-              # Verify the deployment is actually accessible
-              HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PREVIEW_URL")
-              
-              if [ "$HTTP_STATUS" = "200" ]; then
-                echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_OUTPUT
-                echo "Preview URL found and verified: $PREVIEW_URL"
-                
-                # Additional wait to ensure application is fully ready
-                sleep 30
-                exit 0
-              else
-                echo "Preview URL found but returned status $HTTP_STATUS. Waiting for it to be ready..."
-              fi
+              echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_OUTPUT
+              echo "Preview URL found: $PREVIEW_URL"
+              exit 0
             fi
             
             echo "Waiting for Vercel preview deployment... (${elapsed}s elapsed)"
@@ -75,11 +64,13 @@ jobs:
 
       - name: Run Playwright tests
         run: |
-          # Log the URL we're testing against
           echo "Testing against URL: $PLAYWRIGHT_TEST_BASE_URL"
-          pnpm exec playwright test
+          # Set bypass token if you have preview protection enabled
+          VERCEL_PREVIEW_BYPASS=${{ secrets.VERCEL_PREVIEW_BYPASS }} pnpm exec playwright test
         env:
           PLAYWRIGHT_TEST_BASE_URL: ${{ steps.wait_for_preview.outputs.PREVIEW_URL }}
+          # If you have preview protection enabled, pass the bypass token
+          VERCEL_PREVIEW_BYPASS: ${{ secrets.VERCEL_PREVIEW_BYPASS }}
 
       - name: Upload test results
         if: always()

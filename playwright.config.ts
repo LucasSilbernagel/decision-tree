@@ -15,6 +15,7 @@ import { defineConfig, devices } from '@playwright/test'
 const PORT = process.env.PORT || 5173
 const BASE_URL =
   process.env.PLAYWRIGHT_TEST_BASE_URL || `http://localhost:${PORT}`
+const PREVIEW_TOKEN = process.env.VERCEL_PREVIEW_BYPASS
 
 export default defineConfig({
   testDir: './e2e',
@@ -32,6 +33,11 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL: BASE_URL,
+    extraHTTPHeaders: PREVIEW_TOKEN
+      ? {
+          'x-vercel-preview-bypass': PREVIEW_TOKEN,
+        }
+      : undefined,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
