@@ -15,7 +15,6 @@ import { defineConfig, devices } from '@playwright/test'
 const PORT = process.env.PORT || 5173
 const BASE_URL =
   process.env.PLAYWRIGHT_TEST_BASE_URL || `http://localhost:${PORT}`
-const PREVIEW_TOKEN = process.env.VERCEL_PREVIEW_BYPASS
 
 export default defineConfig({
   testDir: './e2e',
@@ -33,11 +32,6 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL: BASE_URL,
-    extraHTTPHeaders: PREVIEW_TOKEN
-      ? {
-          'x-vercel-preview-bypass': PREVIEW_TOKEN,
-        }
-      : undefined,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -48,26 +42,27 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
-
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
     },
-
     /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
+    {
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'Mobile Firefox',
+      use: { ...devices['Pixel 8'] },
+    },
+    {
+      name: 'Mobile Safari',
+      use: { ...devices['iPhone 12'] },
+    },
 
     /* Test against branded browsers. */
     // {

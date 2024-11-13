@@ -78,14 +78,44 @@ export const loadExampleTree = async (page: Page) => {
     page.getByRole('button', { name: /Back to start/i })
   ).not.toBeVisible()
   const scrollableArea = page.getByLabel('Decision tree navigation area')
-  await scrollableArea.evaluate((div) => (div.scrollTop = div.scrollHeight))
+  await scrollableArea.waitFor({ state: 'attached' })
+  let scrollSuccess = false
+  for (let i = 0; i < 3; i++) {
+    try {
+      // Simple scroll first
+      await scrollableArea.evaluate((div) => {
+        div.scrollTop = div.scrollHeight
+      })
+      // Wait a bit for scroll to settle
+      await page.waitForTimeout(100)
+      // Verify scroll position
+      const isScrolled = await scrollableArea.evaluate((div) => {
+        const maxScroll = div.scrollHeight - div.clientHeight
+        return Math.abs(div.scrollTop - maxScroll) < 1
+      })
+      if (isScrolled) {
+        scrollSuccess = true
+        break
+      }
+    } catch (error) {
+      if (i === 2) throw error // On last attempt, throw the error
+      await page.waitForTimeout(100) // Wait before retry
+    }
+  }
+  if (!scrollSuccess) {
+    throw new Error('Failed to scroll to bottom')
+  }
+  // Wait for button to be visible with retry
   await expect(
     page.getByRole('button', { name: /Back to start/i })
-  ).toBeVisible()
+  ).toBeVisible({ timeout: 5000 })
   await expect(
     page.getByLabel('Decision root: Are you at home?').getByLabel('edit text')
   ).not.toBeInViewport()
-  await page.click('role=button[name="Back to start"]', { force: true })
+  await page.getByRole('button', { name: /Back to start/i }).click({
+    timeout: 5000,
+    force: true, // Use force: true to click even if element is moving
+  })
   await expect(
     page.getByLabel('Decision root: Are you at home?').getByLabel('edit text')
   ).toBeInViewport()

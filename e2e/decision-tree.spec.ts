@@ -40,14 +40,17 @@ test.describe('decision tree functionality', () => {
   }) => {
     await loadExampleTree(page)
   })
-
   test('should copy decision tree URL on button click', async ({ page }) => {
     await loadNewTree(page)
     await page.evaluate(() => {
       navigator.clipboard.writeText = async () => Promise.resolve()
     })
     await page.click('role=button[name="Share Tree"]')
-    await expect(page.getByText('URL copied to clipboard!')).toBeVisible()
+    await expect(
+      page.locator('div.text-sm.font-semibold', {
+        hasText: 'URL copied to clipboard!',
+      })
+    ).toBeVisible()
   })
 
   test('should clear the decision tree and return to the landing page on button click', async ({
