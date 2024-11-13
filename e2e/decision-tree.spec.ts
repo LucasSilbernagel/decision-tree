@@ -40,6 +40,7 @@ test.describe('decision tree functionality', () => {
   }) => {
     await loadExampleTree(page)
   })
+
   test('should copy decision tree URL on button click', async ({ page }) => {
     await loadNewTree(page)
     await page.evaluate(() => {
