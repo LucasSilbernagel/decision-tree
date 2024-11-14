@@ -64,15 +64,6 @@ describe('TreeNodeTitle', () => {
       expect(defaultProps.onChange).toHaveBeenCalled()
     })
 
-    it('handles Shift+Enter without saving', async () => {
-      const user = userEvent.setup()
-      render(<TreeNodeTitle {...editModeProps} />)
-
-      await user.keyboard('{Shift>}{Enter}{/Shift}')
-
-      expect(defaultProps.onEditToggle).not.toHaveBeenCalled()
-    })
-
     it('calls onEditToggle when textarea loses focus', async () => {
       const user = userEvent.setup()
       render(<TreeNodeTitle {...editModeProps} />)

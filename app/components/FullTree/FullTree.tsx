@@ -34,22 +34,23 @@ const FullTree = ({
     decisionTree.node
   )
 
-  const handleTitleChange = (value: string) => {
-    setDecisionTree({
-      ...decisionTree,
-      title: {
-        ...decisionTree.title,
-        value: DOMPurify.sanitize(value),
-      },
-    })
-  }
-
+  // Toggle title edit state
   const handleTitleEdit = () => {
     setDecisionTree({
       ...decisionTree,
       title: {
         ...decisionTree.title,
         isEditing: !decisionTree.title.isEditing,
+      },
+    })
+  }
+
+  const handleTitleChange = (value: string) => {
+    setDecisionTree({
+      ...decisionTree,
+      title: {
+        ...decisionTree.title,
+        value: DOMPurify.sanitize(value),
       },
     })
   }
