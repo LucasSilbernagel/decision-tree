@@ -47,9 +47,9 @@ const EmptyTree = ({
           </div>
         </div>
         <h2 className="text-xl">
-          Decision Tree is simple generator of shareable and accessible decision
-          trees. Decision tree data is serialized and saved in the URL, making
-          it easy to share and save created decision trees.
+          Decision Tree is a simple generator of shareable and accessible
+          decision trees. Decision tree data is serialized and saved in the URL,
+          making it easy to share and save created decision trees.
         </h2>
       </div>
     </div>

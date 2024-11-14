@@ -35,7 +35,7 @@ describe('EmptyTree', () => {
     expect(screen.getByRole('button', { name: /example/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /new/i })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
-      'Decision Tree is simple generator of shareable and accessible decision trees. Decision tree data is serialized and saved in the URL, making it easy to share and save created decision trees.'
+      'Decision Tree is a simple generator of shareable and accessible decision trees. Decision tree data is serialized and saved in the URL, making it easy to share and save created decision trees.'
     )
     expect(screen.getByRole('presentation')).toHaveAttribute(
       'src',
