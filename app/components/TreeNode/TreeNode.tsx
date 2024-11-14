@@ -60,6 +60,7 @@ const TreeNode = ({
     }
   }
 
+  // Update the position of the node according to the dimensions of the tree
   useEffect(() => {
     const currentContainer = containerRef.current
     const currentNode = nodeRef.current
@@ -123,7 +124,7 @@ const TreeNode = ({
 
   useEffect(() => {
     const currentNode = nodeRef.current
-
+    // Keep track of whether the root node is visible.
     if (node.id === 0 && currentNode && onRootVisibilityChange) {
       const observer = new IntersectionObserver(
         (entries) => {
