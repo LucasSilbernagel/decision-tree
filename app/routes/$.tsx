@@ -6,7 +6,8 @@ export const meta: MetaFunction = () => {
     { title: 'Decision Tree | 404' },
     {
       name: 'description',
-      content: 'A simple generator of shareable and accessible decision trees.',
+      content:
+        'Decision Tree is simple generator of shareable and accessible decision trees. Decision tree data is serialized and saved in the URL, making it easy to share and save created decision trees.',
     },
     {
       property: 'og:image',

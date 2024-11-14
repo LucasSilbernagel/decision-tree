@@ -5,7 +5,7 @@ export const checkHomepageContents = async (page: Page) => {
   await expect(page.getByRole('button', { name: /New/i })).toBeVisible()
   await expect(
     page.getByText(
-      'A simple generator of shareable and accessible decision trees.'
+      'Decision Tree is simple generator of shareable and accessible decision trees. Decision tree data is serialized and saved in the URL, making it easy to share and save created decision trees.'
     )
   ).toBeVisible()
   await expect(page.getByText('Built by Lucas Silbernagel')).toBeVisible()
