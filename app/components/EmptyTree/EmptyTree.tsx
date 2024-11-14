@@ -40,14 +40,16 @@ const EmptyTree = ({
           <Plus className="mr-1.5 w-4 h-4" /> New
         </Button>
       </div>
-      <div className="my-12">
+      <div className="mx-auto my-12 px-4 md:px-0 max-w-screen-md">
         <div className="flex justify-center mb-12 w-full">
           <div className="max-w-[200px]">
             <img src="/tree.webp" alt="" />
           </div>
         </div>
         <h2 className="text-xl">
-          A simple generator of shareable and accessible decision trees.
+          Decision Tree is simple generator of shareable and accessible decision
+          trees. Decision tree data is serialized and saved in the URL, making
+          it easy to share and save created decision trees.
         </h2>
       </div>
     </div>
